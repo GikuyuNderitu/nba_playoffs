@@ -427,8 +427,20 @@
 }
 
 /* Video Player Modal (Strict size) */
+.player-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
 .player-modal-content {
-  background: #000;
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   width: 95%;
@@ -437,15 +449,34 @@
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
   display: flex;
   flex-direction: column;
+  animation: modalSlideUp 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.video-container {
+.player-modal-header {
+  padding: 16px 24px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.player-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.player-aspect-wrapper {
   position: relative;
   width: 100%;
   padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  background: #000;
 }
 
-.video-container iframe {
+.player-aspect-wrapper > div,
+.player-aspect-wrapper iframe {
   position: absolute;
   top: 0;
   left: 0;
