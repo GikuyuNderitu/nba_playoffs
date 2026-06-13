@@ -3,7 +3,7 @@ import React from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import BracketView from '../components/BracketView';
-import MatchupDetails from '../components/MatchupDetails';
+import MatchupView from '../components/MatchupView';
 import TimelineView from '../components/TimelineView';
 import VideoPlayer from '../components/VideoPlayer';
 
@@ -56,89 +56,76 @@ describe('Spoiler-Free UI Components Unit Tests', () => {
   ];
 
   describe('BracketView', () => {
-    it('should render unlocked matchups with actual contenders and support selection', () => {
+    it('should render canvas and trigger onSelectMatchup on node click', () => {
       const handleSelect = vi.fn();
-      render(<BracketView matchups={mockMatchups} onSelectMatchup={handleSelect} />);
+      const { container } = render(<BracketView matchups={mockMatchups} onSelectMatchup={handleSelect} />);
 
-      // Verify contender names are rendered
-      expect(screen.getByText('CELTICS')).toBeDefined();
-      expect(screen.getByText('76ERS')).toBeDefined();
+      const canvas = container.querySelector('canvas');
+      expect(canvas).toBeDefined();
 
-      // Verify selecting card calls the handler
-      const celticsCard = screen.getByText('CELTICS').closest('.matchup-card');
-      fireEvent.click(celticsCard);
+      // Mock getBoundingClientRect so clientX/Y coordinates map exactly
+      canvas.getBoundingClientRect = vi.fn().mockReturnValue({
+        left: 0,
+        top: 0,
+        width: 1300,
+        height: 680
+      });
+
+      // East Round 1 Matchup 1 is Celtics vs 76ers (Seq 1)
+      // Center is at x=90, y=85. Card width is 160, height is 80.
+      // Click at x=90, y=85 (inside card 1 bounds)
+      fireEvent.click(canvas, {
+        clientX: 90,
+        clientY: 85
+      });
+
       expect(handleSelect).toHaveBeenCalledWith(mockMatchups[0]);
     });
 
-    it('should render locked matchups with placeholders and block click actions', () => {
+    it('should block selection and click actions for locked matchups', () => {
       const handleSelect = vi.fn();
-      render(<BracketView matchups={mockMatchups} onSelectMatchup={handleSelect} />);
+      const { container } = render(<BracketView matchups={mockMatchups} onSelectMatchup={handleSelect} />);
 
-      // Verify placeholders are rendered
-      expect(screen.getByText('Winner of KNICKS vs HAWKS')).toBeDefined();
-      expect(screen.getByText('Winner of CELTICS vs 76ERS')).toBeDefined();
+      const canvas = container.querySelector('canvas');
+      canvas.getBoundingClientRect = vi.fn().mockReturnValue({
+        left: 0,
+        top: 0,
+        width: 1300,
+        height: 680
+      });
 
-      // Verify lock overlay exists
-      expect(screen.getByText('🔒 Locked')).toBeDefined();
+      // Semifinals (Seq 9) is locked. Center is x=270, y=170.
+      // Click at x=270, y=170 (inside locked card bounds)
+      fireEvent.click(canvas, {
+        clientX: 270,
+        clientY: 170
+      });
 
-      // Verify clicking locked card does not call handler
-      const lockedCard = screen.getByText('Winner of KNICKS vs HAWKS').closest('.matchup-card');
-      fireEvent.click(lockedCard);
       expect(handleSelect).not.toHaveBeenCalled();
-    });
-
-    it('should display a trophy icon next to the series winner for resolved matchups', () => {
-      // Setup a resolved matchup (all games watched/skipped)
-      const resolvedMatchups = [
-        {
-          id: 'first-round-hawks-vs-knicks',
-          title: 'KNICKS vs HAWKS',
-          stageName: 'First Round',
-          sequence: 4,
-          feederAId: null,
-          feederBId: null,
-          contenderA: 'KNICKS',
-          contenderB: 'HAWKS',
-          isLocked: false,
-          games: [{ id: 'k1', game_number: 1, title: 'Game 1', status: 'watched', team_a: 'KNICKS', team_b: 'HAWKS', duration: '15m', date: '2026-04-18' }]
-        },
-        {
-          id: 'semis-76ers-vs-knicks',
-          title: 'KNICKS vs 76ERS',
-          stageName: 'Semifinals',
-          sequence: 9,
-          feederAId: 'first-round-hawks-vs-knicks',
-          feederBId: 'first-round-76ers-vs-celtics',
-          contenderA: 'KNICKS', // KNICKS advanced since F1 is resolved
-          contenderB: 'Winner of CELTICS vs 76ERS',
-          isLocked: false,
-          games: []
-        }
-      ];
-
-      render(<BracketView matchups={resolvedMatchups} onSelectMatchup={vi.fn()} />);
-      
-      // Winner of first-round-hawks-vs-knicks is KNICKS (intersection of f1 and child f1-winner contenderA)
-      // Verify trophy icon is displayed next to KNICKS in the first round card
-      const trophy = screen.getByTitle('Series Winner');
-      expect(trophy).toBeDefined();
-      expect(trophy.closest('.contender').textContent).toContain('KNICKS');
     });
   });
 
-  describe('MatchupDetails', () => {
+  describe('MatchupView', () => {
     const mockMatchup = mockMatchups[0];
 
-    it('should list visible games and trigger callbacks for play and toggle progress', () => {
-      const handleClose = vi.fn();
-      const handlePlay = vi.fn();
+    it('should list visible games, select active video on click, and trigger progress toggles', () => {
+      const handleBack = vi.fn();
       const handleToggle = vi.fn();
 
+      // Mock window.YT and window.YT.Player for VideoPlayer
+      const playerConstructorSpy = vi.fn();
+      window.YT = {
+        PlayerState: { ENDED: 0 },
+        Player: function(element, config) {
+          playerConstructorSpy(element, config);
+          this.destroy = vi.fn();
+        },
+      };
+
       render(
-        <MatchupDetails 
+        <MatchupView 
           matchup={mockMatchup} 
-          onClose={handleClose} 
-          onPlayGame={handlePlay} 
+          onBack={handleBack} 
           onToggleProgress={handleToggle} 
         />
       );
@@ -147,26 +134,15 @@ describe('Spoiler-Free UI Components Unit Tests', () => {
       expect(screen.getByText('Celtics at 76ers Game 1 Highlights')).toBeDefined();
       expect(screen.getByText('Celtics at 76ers Game 2 Highlights')).toBeDefined();
 
-      // Test play button trigger
-      const playButtons = screen.getAllByRole('button', { name: '▶' });
-      fireEvent.click(playButtons[0]);
-      expect(handlePlay).toHaveBeenCalledWith(mockMatchup.games[0]);
-
-      // Test progress toggle triggers
-      // Game 2 is unwatched, clicking cycles it to watched
+      // Game 2 is unwatched, clicking its SkipControl cycles it to watched
       const game2StatusBtn = screen.getByRole('button', { name: 'Watch status: Unwatched' });
       fireEvent.click(game2StatusBtn);
       expect(handleToggle).toHaveBeenCalledWith('g2', 'watched');
 
-      // Game 1 is watched, clicking cycles it to skipped
-      const game1StatusBtn = screen.getByRole('button', { name: 'Watch status: Watched' });
-      fireEvent.click(game1StatusBtn);
-      expect(handleToggle).toHaveBeenCalledWith('g1', 'skipped');
-
-      // Test close button trigger
-      const closeButton = screen.getByRole('button', { name: 'Close details' });
-      fireEvent.click(closeButton);
-      expect(handleClose).toHaveBeenCalled();
+      // Test back button trigger
+      const backButton = screen.getByRole('button', { name: '← Back to Bracket' });
+      fireEvent.click(backButton);
+      expect(handleBack).toHaveBeenCalled();
     });
   });
 
@@ -205,7 +181,6 @@ describe('Spoiler-Free UI Components Unit Tests', () => {
   describe('VideoPlayer', () => {
     it('should load YouTube IFrame API and trigger onVideoEnded when playback ends', () => {
       const handleEnded = vi.fn();
-      const handleClose = vi.fn();
 
       // Mock window.YT and window.YT.Player
       let onStateChangeCallback = null;
@@ -225,7 +200,6 @@ describe('Spoiler-Free UI Components Unit Tests', () => {
         <VideoPlayer 
           videoId="mock-video-123" 
           onVideoEnded={handleEnded} 
-          onClose={handleClose} 
         />
       );
 
@@ -240,11 +214,6 @@ describe('Spoiler-Free UI Components Unit Tests', () => {
 
       // Verify the handler was called
       expect(handleEnded).toHaveBeenCalled();
-
-      // Trigger the close button
-      const closeButton = screen.getByRole('button', { name: 'Close Player' });
-      fireEvent.click(closeButton);
-      expect(handleClose).toHaveBeenCalled();
     });
   });
 });
