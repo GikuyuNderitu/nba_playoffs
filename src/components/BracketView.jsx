@@ -64,11 +64,16 @@ function MatchupCard({ matchup, winnerName, onSelect }) {
 }
 
 export default function BracketView({ matchups = [], onSelectMatchup }) {
-  // Group matchups by stage levels
-  const round1 = matchups.filter(m => m.sequence >= 1 && m.sequence <= 8);
-  const round2 = matchups.filter(m => m.sequence >= 9 && m.sequence <= 12);
-  const round3 = matchups.filter(m => m.sequence >= 13 && m.sequence <= 14);
-  const round4 = matchups.filter(m => m.sequence === 15);
+  // Predefined sequence order to prevent crossing lines in the visual tree
+  const round1Seq = [1, 4, 3, 2, 5, 6, 7, 8];
+  const round2Seq = [9, 10, 12, 11];
+  const round3Seq = [13, 14];
+  const round4Seq = [15];
+
+  const round1 = round1Seq.map(seq => matchups.find(m => m.sequence === seq)).filter(Boolean);
+  const round2 = round2Seq.map(seq => matchups.find(m => m.sequence === seq)).filter(Boolean);
+  const round3 = round3Seq.map(seq => matchups.find(m => m.sequence === seq)).filter(Boolean);
+  const round4 = round4Seq.map(seq => matchups.find(m => m.sequence === seq)).filter(Boolean);
 
   return (
     <div className="bracket-container">
