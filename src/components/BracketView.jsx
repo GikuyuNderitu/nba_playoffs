@@ -20,7 +20,7 @@ function getMatchupWinner(matchup, allMatchups) {
       return child.contenderB;
     }
   } else {
-    // Finals matchup resolved: in our 2026 playoffs seed, KNICKS won
+    // Finals matchup resolved: in our playoffs data, KNICKS won
     if (matchup.id === 'nba-finals-knicks-vs-spurs') {
       return 'KNICKS';
     }
@@ -64,76 +64,140 @@ function MatchupCard({ matchup, winnerName, onSelect }) {
 }
 
 export default function BracketView({ matchups = [], onSelectMatchup }) {
-  // Predefined sequence order to prevent crossing lines in the visual tree
-  const round1Seq = [1, 4, 3, 2, 5, 6, 7, 8];
-  const round2Seq = [9, 10, 12, 11];
-  const round3Seq = [13, 14];
-  const round4Seq = [15];
+  // Eastern Conference Matchup Sequences (in binary tree order)
+  const eastRound1Seq = [1, 4, 3, 2];
+  const eastRound2Seq = [9, 10];
+  const eastRound3Seq = [13];
 
-  const round1 = round1Seq.map(seq => matchups.find(m => m.sequence === seq)).filter(Boolean);
-  const round2 = round2Seq.map(seq => matchups.find(m => m.sequence === seq)).filter(Boolean);
-  const round3 = round3Seq.map(seq => matchups.find(m => m.sequence === seq)).filter(Boolean);
-  const round4 = round4Seq.map(seq => matchups.find(m => m.sequence === seq)).filter(Boolean);
+  // Western Conference Matchup Sequences (in binary tree order)
+  const westRound1Seq = [5, 6, 7, 8];
+  const westRound2Seq = [12, 11];
+  const westRound3Seq = [14];
+
+  // Finals Sequence
+  const finalsSeq = [15];
+
+  const getMatch = (seq) => matchups.find(m => m.sequence === seq);
+
+  const eastR1 = eastRound1Seq.map(getMatch).filter(Boolean);
+  const eastR2 = eastRound2Seq.map(getMatch).filter(Boolean);
+  const eastR3 = eastRound3Seq.map(getMatch).filter(Boolean);
+
+  const westR1 = westRound1Seq.map(getMatch).filter(Boolean);
+  const westR2 = westRound2Seq.map(getMatch).filter(Boolean);
+  const westR3 = westRound3Seq.map(getMatch).filter(Boolean);
+
+  const finals = finalsSeq.map(getMatch).filter(Boolean);
+  
+  const finalsMatch = finals[0];
+  const champion = finalsMatch ? getMatchupWinner(finalsMatch, matchups) : null;
 
   return (
-    <div className="bracket-container">
-      {/* Column 1: First Round */}
-      <div className="bracket-column">
-        <h3>First Round</h3>
-        <div className="matchups-col-wrapper">
-          {round1.map(m => (
-            <MatchupCard 
-              key={m.id} 
-              matchup={m} 
-              winnerName={getMatchupWinner(m, matchups)}
-              onSelect={onSelectMatchup}
-            />
-          ))}
+    <div className="bracket-wrapper">
+      <div className="bracket-headers">
+        <div className="header-group left-headers">
+          <span>First Round</span>
+          <span>Semifinals</span>
+          <span>Conf. Finals</span>
+        </div>
+        <div className="header-group center-header">
+          <span>NBA Finals</span>
+        </div>
+        <div className="header-group right-headers">
+          <span>Conf. Finals</span>
+          <span>Semifinals</span>
+          <span>First Round</span>
         </div>
       </div>
 
-      {/* Column 2: Conference Semifinals */}
-      <div className="bracket-column">
-        <h3>Semifinals</h3>
-        <div className="matchups-col-wrapper">
-          {round2.map(m => (
-            <MatchupCard 
-              key={m.id} 
-              matchup={m} 
-              winnerName={getMatchupWinner(m, matchups)}
-              onSelect={onSelectMatchup}
-            />
-          ))}
+      <div className="bracket-tree">
+        {/* LEFT SIDE: Eastern Conference */}
+        <div className="bracket-side left-side">
+          <div className="bracket-col col-1">
+            {eastR1.map(m => (
+              <MatchupCard 
+                key={m.id} 
+                matchup={m} 
+                winnerName={getMatchupWinner(m, matchups)}
+                onSelect={onSelectMatchup}
+              />
+            ))}
+          </div>
+          <div className="bracket-col col-2">
+            {eastR2.map(m => (
+              <MatchupCard 
+                key={m.id} 
+                matchup={m} 
+                winnerName={getMatchupWinner(m, matchups)}
+                onSelect={onSelectMatchup}
+              />
+            ))}
+          </div>
+          <div className="bracket-col col-3">
+            {eastR3.map(m => (
+              <MatchupCard 
+                key={m.id} 
+                matchup={m} 
+                winnerName={getMatchupWinner(m, matchups)}
+                onSelect={onSelectMatchup}
+              />
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Column 3: Conference Finals */}
-      <div className="bracket-column">
-        <h3>Conference Finals</h3>
-        <div className="matchups-col-wrapper">
-          {round3.map(m => (
-            <MatchupCard 
-              key={m.id} 
-              matchup={m} 
-              winnerName={getMatchupWinner(m, matchups)}
-              onSelect={onSelectMatchup}
-            />
-          ))}
+        {/* CENTER: NBA Finals & Champion Podiums */}
+        <div className="bracket-center">
+          <div className="finals-slot">
+            {finalsMatch && (
+              <MatchupCard 
+                matchup={finalsMatch} 
+                winnerName={champion}
+                onSelect={onSelectMatchup}
+              />
+            )}
+          </div>
+          
+          {champion && (
+            <div className="champion-podium fade-in">
+              <span className="trophy">🏆</span>
+              <h4>CHAMPION</h4>
+              <div className="champion-name">{champion}</div>
+            </div>
+          )}
         </div>
-      </div>
 
-      {/* Column 4: NBA Finals */}
-      <div className="bracket-column">
-        <h3>NBA Finals</h3>
-        <div className="matchups-col-wrapper">
-          {round4.map(m => (
-            <MatchupCard 
-              key={m.id} 
-              matchup={m} 
-              winnerName={getMatchupWinner(m, matchups)}
-              onSelect={onSelectMatchup}
-            />
-          ))}
+        {/* RIGHT SIDE: Western Conference */}
+        <div className="bracket-side right-side">
+          <div className="bracket-col col-3">
+            {westR3.map(m => (
+              <MatchupCard 
+                key={m.id} 
+                matchup={m} 
+                winnerName={getMatchupWinner(m, matchups)}
+                onSelect={onSelectMatchup}
+              />
+            ))}
+          </div>
+          <div className="bracket-col col-2">
+            {westR2.map(m => (
+              <MatchupCard 
+                key={m.id} 
+                matchup={m} 
+                winnerName={getMatchupWinner(m, matchups)}
+                onSelect={onSelectMatchup}
+              />
+            ))}
+          </div>
+          <div className="bracket-col col-1">
+            {westR1.map(m => (
+              <MatchupCard 
+                key={m.id} 
+                matchup={m} 
+                winnerName={getMatchupWinner(m, matchups)}
+                onSelect={onSelectMatchup}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>
