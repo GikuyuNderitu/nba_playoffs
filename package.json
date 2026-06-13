@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@distube/ytpl": "^1.2.4",
+    "ytpl": "^2.3.0"
+  }
+}
