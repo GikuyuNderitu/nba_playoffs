@@ -5,6 +5,7 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import BracketView from '../components/BracketView';
 import MatchupDetails from '../components/MatchupDetails';
 import TimelineView from '../components/TimelineView';
+import VideoPlayer from '../components/VideoPlayer';
 
 describe('Spoiler-Free UI Components Unit Tests', () => {
   afterEach(() => {
@@ -198,6 +199,52 @@ describe('Spoiler-Free UI Components Unit Tests', () => {
       // Verify matchup tags are formatted
       expect(screen.getByText('76ERS VS CELTICS')).toBeDefined();
       expect(screen.getByText('HAWKS VS KNICKS')).toBeDefined();
+    });
+  });
+
+  describe('VideoPlayer', () => {
+    it('should load YouTube IFrame API and trigger onVideoEnded when playback ends', () => {
+      const handleEnded = vi.fn();
+      const handleClose = vi.fn();
+
+      // Mock window.YT and window.YT.Player
+      let onStateChangeCallback = null;
+      const playerConstructorSpy = vi.fn();
+      const PlayerMock = function(element, config) {
+        playerConstructorSpy(element, config);
+        onStateChangeCallback = config.events.onStateChange;
+        this.destroy = vi.fn();
+      };
+
+      window.YT = {
+        PlayerState: { ENDED: 0 },
+        Player: PlayerMock,
+      };
+
+      render(
+        <VideoPlayer 
+          videoId="mock-video-123" 
+          onVideoEnded={handleEnded} 
+          onClose={handleClose} 
+        />
+      );
+
+      // Verify Player constructor was called with the div element and video info
+      expect(playerConstructorSpy).toHaveBeenCalled();
+      const firstCallArgs = playerConstructorSpy.mock.calls[0];
+      expect(firstCallArgs[1].videoId).toBe('mock-video-123');
+
+      // Trigger the ENDED state change
+      expect(onStateChangeCallback).not.toBeNull();
+      onStateChangeCallback({ data: window.YT.PlayerState.ENDED });
+
+      // Verify the handler was called
+      expect(handleEnded).toHaveBeenCalled();
+
+      // Trigger the close button
+      const closeButton = screen.getByRole('button', { name: 'Close Player' });
+      fireEvent.click(closeButton);
+      expect(handleClose).toHaveBeenCalled();
     });
   });
 });
