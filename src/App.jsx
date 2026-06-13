@@ -9,13 +9,11 @@ import {
 } from './data-access/queries';
 import BracketView from './components/BracketView';
 import TimelineView from './components/TimelineView';
-import MatchupDetails from './components/MatchupDetails';
-import VideoPlayer from './components/VideoPlayer';
+import MatchupView from './components/MatchupView';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('bracket'); // 'bracket' | 'timeline'
-  const [selectedMatchup, setSelectedMatchup] = useState(null);
-  const [activeGame, setActiveGame] = useState(null);
+  const [currentView, setCurrentView] = useState('bracket'); // 'bracket' | 'timeline' | 'matchup'
+  const [selectedMatchupId, setSelectedMatchupId] = useState(null);
   const [sessionId, setSessionId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('s') || '';
@@ -63,24 +61,30 @@ export default function App() {
     updateProgressMutation.mutate({ gameId, status });
   };
 
-  const handleVideoEnded = () => {
-    if (activeGame) {
-      handleToggleProgress(activeGame.id, 'watched');
-    }
+  const handleSelectMatchup = (matchup) => {
+    setSelectedMatchupId(matchup.id);
+    setCurrentView('matchup');
+  };
+
+  const handlePlayFromTimeline = (game) => {
+    setSelectedMatchupId(game.matchup_id);
+    setCurrentView('matchup');
   };
 
   const isLoading = loadingTournaments || loadingDetails || loadingTimeline || !sessionId;
 
-  // Find updated matchup details for modal if open
-  const openMatchup = selectedMatchup
-    ? tournamentDetails?.matchups.find(m => m.id === selectedMatchup.id)
+  // Find active matchup details for the dedicated view
+  const activeMatchup = selectedMatchupId && tournamentDetails
+    ? tournamentDetails.matchups.find(m => m.id === selectedMatchupId)
     : null;
 
   return (
     <div className="app-container">
       <header className="app-header">
         <div className="brand-section">
-          <h1>🏀 ChronoCourt</h1>
+          <h1 onClick={() => { setCurrentView('bracket'); setSelectedMatchupId(null); }} style={{ cursor: 'pointer' }}>
+            🏀 ChronoCourt
+          </h1>
         </div>
         <div className="header-actions">
           {sessionId && (
@@ -100,20 +104,22 @@ export default function App() {
         </div>
       </header>
 
-      <div className="view-tabs-container">
-        <button 
-          className={`tab-btn ${activeTab === 'bracket' ? 'active' : ''}`}
-          onClick={() => setActiveTab('bracket')}
-        >
-          Bracket View
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
-          onClick={() => setActiveTab('timeline')}
-        >
-          Timeline View
-        </button>
-      </div>
+      {currentView !== 'matchup' && (
+        <div className="view-tabs-container">
+          <button 
+            className={`tab-btn ${currentView === 'bracket' ? 'active' : ''}`}
+            onClick={() => setCurrentView('bracket')}
+          >
+            Bracket View
+          </button>
+          <button 
+            className={`tab-btn ${currentView === 'timeline' ? 'active' : ''}`}
+            onClick={() => setCurrentView('timeline')}
+          >
+            Timeline View
+          </button>
+        </div>
+      )}
 
       <main className="main-content">
         {isLoading ? (
@@ -123,40 +129,31 @@ export default function App() {
           </div>
         ) : (
           <>
-            {activeTab === 'bracket' ? (
+            {currentView === 'bracket' && (
               <BracketView 
                 matchups={tournamentDetails?.matchups || []} 
-                onSelectMatchup={setSelectedMatchup} 
+                onSelectMatchup={handleSelectMatchup} 
               />
-            ) : (
+            )}
+            
+            {currentView === 'timeline' && (
               <TimelineView 
                 games={timelineGames || []} 
-                onPlayGame={setActiveGame} 
+                onPlayGame={handlePlayFromTimeline} 
                 onToggleProgress={handleToggleProgress} 
+              />
+            )}
+
+            {currentView === 'matchup' && activeMatchup && (
+              <MatchupView 
+                matchup={activeMatchup}
+                onBack={() => { setCurrentView('bracket'); setSelectedMatchupId(null); }}
+                onToggleProgress={handleToggleProgress}
               />
             )}
           </>
         )}
       </main>
-
-      {/* Matchup Details Modal */}
-      {openMatchup && (
-        <MatchupDetails 
-          matchup={openMatchup} 
-          onClose={() => setSelectedMatchup(null)} 
-          onPlayGame={setActiveGame} 
-          onToggleProgress={handleToggleProgress} 
-        />
-      )}
-
-      {/* Video Player Modal */}
-      {activeGame && (
-        <VideoPlayer 
-          videoId={activeGame.video_id} 
-          onVideoEnded={handleVideoEnded} 
-          onClose={() => setActiveGame(null)} 
-        />
-      )}
     </div>
   );
 }

@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from 'react';
 
 /**
  * VideoPlayer Component that embeds the YouTube IFrame Player
- * and notifies parent when the playback completes (ENDED).
+ * inline and notifies parent when the playback completes (ENDED).
  */
-export default function VideoPlayer({ videoId, onVideoEnded, onClose }) {
+export default function VideoPlayer({ videoId, onVideoEnded }) {
   const containerRef = useRef(null);
   const playerRef = useRef(null);
 
@@ -87,16 +87,8 @@ export default function VideoPlayer({ videoId, onVideoEnded, onClose }) {
   }, [videoId]);
 
   return (
-    <div className="player-modal-overlay" onClick={onClose}>
-      <div className="player-modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="player-modal-header">
-          <h3>Watching Highlights</h3>
-          <button className="close-btn" onClick={onClose} aria-label="Close Player">&times;</button>
-        </div>
-        <div className="player-aspect-wrapper">
-          <div ref={containerRef}></div>
-        </div>
-      </div>
+    <div className="player-aspect-wrapper">
+      <div ref={containerRef}></div>
     </div>
   );
 }
