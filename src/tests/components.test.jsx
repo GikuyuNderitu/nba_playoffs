@@ -152,12 +152,14 @@ describe('Spoiler-Free UI Components Unit Tests', () => {
       expect(handlePlay).toHaveBeenCalledWith(mockMatchup.games[0]);
 
       // Test progress toggle triggers
-      const watchedButtons = screen.getAllByRole('button', { name: '👁 Watched' });
-      fireEvent.click(watchedButtons[1]); // Toggle unwatched Game 2 to watched
+      // Game 2 is unwatched, clicking cycles it to watched
+      const game2StatusBtn = screen.getByRole('button', { name: 'Watch status: Unwatched' });
+      fireEvent.click(game2StatusBtn);
       expect(handleToggle).toHaveBeenCalledWith('g2', 'watched');
 
-      const skipButtons = screen.getAllByRole('button', { name: '⏭ Skip' });
-      fireEvent.click(skipButtons[0]); // Toggle watched Game 1 to unwatched/skipped
+      // Game 1 is watched, clicking cycles it to skipped
+      const game1StatusBtn = screen.getByRole('button', { name: 'Watch status: Watched' });
+      fireEvent.click(game1StatusBtn);
       expect(handleToggle).toHaveBeenCalledWith('g1', 'skipped');
 
       // Test close button trigger
