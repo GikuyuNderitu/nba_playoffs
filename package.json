@@ -14,16 +14,24 @@
   },
   "dependencies": {
     "@distube/ytpl": "^1.2.4",
+    "@tanstack/react-query": "^5.101.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "localforage": "^1.10.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "sqlite3": "^6.0.1",
     "ytpl": "^2.3.0"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@vitejs/plugin-react": "^6.0.2",
     "concurrently": "^10.0.3",
+    "jsdom": "^29.1.1",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
+    "vite": "^8.0.16",
     "vitest": "^4.1.8"
   }
 }
