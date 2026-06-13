@@ -145,15 +145,22 @@ In bracket views, matchups in later rounds depend on earlier rounds.
 
 ## 5. Build & Deployment Architecture
 
-### Docker Build Pipeline
+### Docker Build Pipeline & Tailwind CSS Compilation
 The application uses a multi-stage Docker build, producing a lightweight runtime image:
-1. **Build Stage**: Installs development dependencies, copies code, and runs `npm run build` (creating static assets).
-2. **Runner Stage**: Installs production dependencies only, copies Express server files and build assets, exposes port `3000`, and exposes a volume mount at `/data` for the SQLite file.
+1. **Build Stage**: 
+   - Installs development dependencies (including Vite and Tailwind CSS plugins) using `npm ci`.
+   - Runs `npm run build` which triggers Vite to compile the React application.
+   - During the Vite compilation step, the `@tailwindcss/vite` plugin automatically processes all stylesheets, resolves imports, compiles all Tailwind CSS classes, and emits optimized, minified static assets (including a single CSS bundle) to the `/app/dist` directory.
+2. **Runner Stage**: 
+   - Installs production dependencies only (`npm ci --omit=dev`), omitting build-only packages like Vite and Tailwind.
+   - Copies Express server source files and the compiled frontend assets from the Build Stage into `/app/dist`.
+   - Exposes port `3000` and configures a volume mount at `/data` for the SQLite database.
 
 ### Local Development
 To run in development mode locally:
 - Server runs on `http://localhost:3001` (hot-reloaded).
 - Vite dev server runs on `http://localhost:5173`, proxying `/api` queries to the server.
+- The Vite dev server compiles Tailwind CSS utility classes on-the-fly.
 - SQLite runs locally in `./database.sqlite`.
 
 ---
