@@ -471,3 +471,143 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Timeline Layout Styles */
+.timeline-container {
+  position: relative;
+  padding-left: 32px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.timeline-track {
+  position: absolute;
+  left: 8px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  background: var(--border-color);
+}
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.timeline-group {
+  position: relative;
+}
+
+.timeline-date-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.timeline-dot-date {
+  position: absolute;
+  left: -28px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  border: 2px solid var(--bg-primary);
+  box-shadow: 0 0 0 2px var(--border-color);
+  z-index: 2;
+  transition: var(--transition-smooth);
+}
+
+.timeline-group:hover .timeline-dot-date {
+  background: var(--neon-cyan);
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.timeline-date-header h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timeline-games {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.timeline-game-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  transition: var(--transition-smooth);
+}
+
+.timeline-game-card.unwatched {
+  border-color: var(--border-neon-cyan);
+}
+
+.timeline-game-card.watched {
+  border-color: var(--border-neon-gold);
+}
+
+.timeline-game-card.skipped {
+  border-color: rgba(157, 78, 221, 0.3);
+}
+
+.timeline-game-card:hover {
+  background: var(--bg-card-hover);
+  transform: translateX(4px);
+}
+
+.timeline-game-body {
+  flex: 1;
+}
+
+.timeline-game-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.timeline-game-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.timeline-game-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 12px;
+}
+
+.timeline-game-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.timeline-toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.btn-tiny {
+  padding: 4px 8px;
+  font-size: 10px;
+  background: transparent;
+}
+
