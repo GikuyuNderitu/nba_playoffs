@@ -9,7 +9,8 @@
     "client:dev": "vite",
     "client:build": "vite build",
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
-    "build": "npm run client:build"
+    "build": "npm run client:build",
+    "test": "vitest run"
   },
   "dependencies": {
     "@distube/ytpl": "^1.2.4",
@@ -21,7 +22,7 @@
   },
   "devDependencies": {
     "concurrently": "^10.0.3",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "vitest": "^4.1.8"
   }
 }
-
