@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
 const { db, run, all, get } = require('./db');
+const { parseAndImportPlaylist } = require('./importer');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -296,6 +297,26 @@ app.get('/api/tournaments/:id/timeline', asyncHandler(async (req, res) => {
   timelineGames.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   res.json(timelineGames);
+}));
+
+// Import a playlist dynamically as a tournament
+app.post('/api/tournaments/import', asyncHandler(async (req, res) => {
+  const { playlistId, tournamentId, title, description, type, presetName } = req.body;
+
+  if (!playlistId || !tournamentId || !title) {
+    return res.status(400).json({ error: 'Missing playlistId, tournamentId, or title' });
+  }
+
+  const result = await parseAndImportPlaylist({
+    playlistId,
+    tournamentId,
+    title,
+    description,
+    type,
+    presetName
+  });
+
+  res.json({ success: true, ...result });
 }));
 
 // ============================================================================
