@@ -1,122 +1,162 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import { 
+  useTournaments, 
+  useTournamentDetails, 
+  useTournamentTimeline, 
+  useCreateSession, 
+  useCloneSession, 
+  useUpdateProgress 
+} from './data-access/queries';
+import BracketView from './components/BracketView';
+import TimelineView from './components/TimelineView';
+import MatchupDetails from './components/MatchupDetails';
+import VideoPlayer from './components/VideoPlayer';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [activeTab, setActiveTab] = useState('bracket'); // 'bracket' | 'timeline'
+  const [selectedMatchup, setSelectedMatchup] = useState(null);
+  const [activeGame, setActiveGame] = useState(null);
+  const [sessionId, setSessionId] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('s') || '';
+  });
+
+  const createSessionMutation = useCreateSession();
+  const cloneSessionMutation = useCloneSession();
+
+  // Create session if not present in URL
+  useEffect(() => {
+    if (!sessionId) {
+      createSessionMutation.mutate(undefined, {
+        onSuccess: (data) => {
+          setSessionId(data.id);
+          const params = new URLSearchParams(window.location.search);
+          params.set('s', data.id);
+          window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+        }
+      });
+    }
+  }, [sessionId, createSessionMutation]);
+
+  // Handle clone session
+  const handleCloneSession = () => {
+    if (!sessionId) return;
+    cloneSessionMutation.mutate(sessionId, {
+      onSuccess: (data) => {
+        setSessionId(data.id);
+        const params = new URLSearchParams(window.location.search);
+        params.set('s', data.id);
+        window.history.pushState({}, '', `${window.location.pathname}?${params.toString()}`);
+      }
+    });
+  };
+
+  const { data: tournaments, isLoading: loadingTournaments } = useTournaments();
+  const activeTournamentId = tournaments?.[0]?.id || 'nba-playoffs-2026';
+
+  const { data: tournamentDetails, isLoading: loadingDetails } = useTournamentDetails(activeTournamentId, sessionId);
+  const { data: timelineGames, isLoading: loadingTimeline } = useTournamentTimeline(activeTournamentId, sessionId);
+
+  const updateProgressMutation = useUpdateProgress(sessionId, activeTournamentId);
+
+  const handleToggleProgress = (gameId, status) => {
+    updateProgressMutation.mutate({ gameId, status });
+  };
+
+  const handleVideoEnded = () => {
+    if (activeGame) {
+      handleToggleProgress(activeGame.id, 'watched');
+    }
+  };
+
+  const isLoading = loadingTournaments || loadingDetails || loadingTimeline || !sessionId;
+
+  // Find updated matchup details for modal if open
+  const openMatchup = selectedMatchup
+    ? tournamentDetails?.matchups.find(m => m.id === selectedMatchup.id)
+    : null;
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app-container">
+      <header className="app-header">
+        <div className="brand-section">
+          <h1>🏀 ChronoCourt</h1>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
+        <div className="header-actions">
+          {sessionId && (
+            <div className="session-badge">
+              <span>Session:</span>
+              <span className="session-id">{sessionId}</span>
+              <button 
+                className="btn btn-tiny"
+                style={{ borderColor: 'var(--neon-purple)', color: 'var(--neon-purple)', marginLeft: '8px' }}
+                onClick={handleCloneSession}
+                disabled={cloneSessionMutation.isPending}
+              >
+                {cloneSessionMutation.isPending ? 'Cloning...' : '👥 Clone'}
+              </button>
+            </div>
+          )}
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+      </header>
+
+      <div className="view-tabs-container">
+        <button 
+          className={`tab-btn ${activeTab === 'bracket' ? 'active' : ''}`}
+          onClick={() => setActiveTab('bracket')}
         >
-          Count is {count}
+          Bracket View
         </button>
-      </section>
+        <button 
+          className={`tab-btn ${activeTab === 'timeline' ? 'active' : ''}`}
+          onClick={() => setActiveTab('timeline')}
+        >
+          Timeline View
+        </button>
+      </div>
 
-      <div className="ticks"></div>
+      <main className="main-content">
+        {isLoading ? (
+          <div className="loading-container">
+            <div className="spinner"></div>
+            <p style={{ color: 'var(--text-secondary)' }}>Loading ChronoCourt...</p>
+          </div>
+        ) : (
+          <>
+            {activeTab === 'bracket' ? (
+              <BracketView 
+                matchups={tournamentDetails?.matchups || []} 
+                onSelectMatchup={setSelectedMatchup} 
+              />
+            ) : (
+              <TimelineView 
+                games={timelineGames || []} 
+                onPlayGame={setActiveGame} 
+                onToggleProgress={handleToggleProgress} 
+              />
+            )}
+          </>
+        )}
+      </main>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Matchup Details Modal */}
+      {openMatchup && (
+        <MatchupDetails 
+          matchup={openMatchup} 
+          onClose={() => setSelectedMatchup(null)} 
+          onPlayGame={setActiveGame} 
+          onToggleProgress={handleToggleProgress} 
+        />
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Video Player Modal */}
+      {activeGame && (
+        <VideoPlayer 
+          videoId={activeGame.video_id} 
+          onVideoEnded={handleVideoEnded} 
+          onClose={() => setActiveGame(null)} 
+        />
+      )}
+    </div>
+  );
 }
-
-export default App
