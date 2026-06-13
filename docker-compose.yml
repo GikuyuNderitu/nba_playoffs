@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: tournament_viewer
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/data  # Mounts local ./data folder to persist the SQLite file
+    environment:
+      - PORT=3000
+      - DATABASE_PATH=/data/database.sqlite
+      - NODE_ENV=production
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY:-}
+    restart: unless-stopped

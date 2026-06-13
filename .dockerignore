@@ -1,0 +1,13 @@
+node_modules
+dist
+data
+*.sqlite
+.env
+.git
+.gitignore
+.jj
+.system_generated
+transcript.jsonl
+walkthrough.md
+task.md
+implementation_plan.md
