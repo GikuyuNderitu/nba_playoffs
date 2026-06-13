@@ -144,6 +144,29 @@ describe('Spoiler-Free UI Components Unit Tests', () => {
       fireEvent.click(backButton);
       expect(handleBack).toHaveBeenCalled();
     });
+
+    it('should trigger onSelectGame when a game row is clicked', () => {
+      const handleBack = vi.fn();
+      const handleToggle = vi.fn();
+      const handleSelectGame = vi.fn();
+
+      render(
+        <MatchupView 
+          matchup={mockMatchup} 
+          onBack={handleBack} 
+          onToggleProgress={handleToggle} 
+          selectedGameId="g1"
+          onSelectGame={handleSelectGame}
+        />
+      );
+
+      // Click on Game 2 row (the text element inside the row container)
+      const game2Row = screen.getByText('Celtics at 76ers Game 2 Highlights');
+      fireEvent.click(game2Row);
+
+      // Verify onSelectGame was called with game 2's ID 'g2'
+      expect(handleSelectGame).toHaveBeenCalledWith('g2', false);
+    });
   });
 
   describe('TimelineView', () => {

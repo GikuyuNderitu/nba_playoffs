@@ -7,22 +7,33 @@ import SkipControl from './SkipControl';
  * Renders a dedicated watch page for a selected series/matchup, including
  * an inline VideoPlayer and sequential list of games.
  */
-export default function MatchupView({ matchup, onBack, onToggleProgress }) {
+export default function MatchupView({ 
+  matchup, 
+  onBack, 
+  onToggleProgress, 
+  selectedGameId = null, 
+  onSelectGame = () => {} 
+}) {
   const { contenderA, contenderB, stageName, games = [] } = matchup;
   const [activeGame, setActiveGame] = useState(null);
 
-  // Auto-select the first unwatched game in the list initially
+  // Synchronize active game with props / auto-selection
   useEffect(() => {
     if (games.length > 0) {
-      const firstUnwatched = games.find(g => g.status === 'unwatched');
-      if (firstUnwatched) {
-        setActiveGame(firstUnwatched);
+      const matchedGame = selectedGameId ? games.find(g => g.id === selectedGameId) : null;
+      if (matchedGame) {
+        setActiveGame(matchedGame);
       } else {
-        // If all games watched/skipped, default to the first game
-        setActiveGame(games[0]);
+        // Auto-select the first unwatched game in the list initially
+        const firstUnwatched = games.find(g => g.status === 'unwatched');
+        const defaultGame = firstUnwatched || games[0];
+        setActiveGame(defaultGame);
+        onSelectGame(defaultGame.id, true); // replace state to avoid cluttering history
       }
+    } else {
+      setActiveGame(null);
     }
-  }, [games]);
+  }, [games, selectedGameId]);
 
   const handleVideoEnded = () => {
     if (activeGame) {
@@ -31,7 +42,7 @@ export default function MatchupView({ matchup, onBack, onToggleProgress }) {
       // Auto-progress: play the next game in the sequence if available
       const currentIdx = games.findIndex(g => g.id === activeGame.id);
       if (currentIdx !== -1 && currentIdx + 1 < games.length) {
-        setActiveGame(games[currentIdx + 1]);
+        onSelectGame(games[currentIdx + 1].id, true); // Replace URL on auto-advance
       }
     }
   };
@@ -39,12 +50,12 @@ export default function MatchupView({ matchup, onBack, onToggleProgress }) {
   return (
     <div className="matchup-view-container fade-in">
       <div className="matchup-view-header">
-        <button className="back-btn" onClick={onBack}>
+        <button className="matchup-view-header-back-btn" onClick={onBack}>
           ← Back to Bracket
         </button>
         <div className="matchup-view-info">
           <span className="badge badge-cyan">{stageName}</span>
-          <h2>{contenderA} vs {contenderB}</h2>
+          <h2 className="matchup-view-info-h2">{contenderA} vs {contenderB}</h2>
         </div>
       </div>
 
@@ -70,7 +81,7 @@ export default function MatchupView({ matchup, onBack, onToggleProgress }) {
 
         {/* Right Column: Game schedule & skip controls */}
         <div className="series-games-column">
-          <h3>Series Schedule & Progress</h3>
+          <h3 className="series-games-column-h3">Series Schedule & Progress</h3>
           <div className="series-games-list">
             {games.length === 0 ? (
               <p className="no-games-text">No games available for this matchup.</p>
@@ -81,7 +92,7 @@ export default function MatchupView({ matchup, onBack, onToggleProgress }) {
                   <div 
                     key={g.id} 
                     className={`series-game-row ${g.status} ${isActive ? 'active' : ''}`}
-                    onClick={() => setActiveGame(g)}
+                    onClick={() => onSelectGame(g.id, false)}
                   >
                     <div className="game-status-dot"></div>
                     <div className="game-row-details">

@@ -28,7 +28,23 @@ function getMatchupWinner(matchup, allMatchups) {
 
 export default function BracketView({ matchups = [], onSelectMatchup }) {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
   const [hoveredNode, setHoveredNode] = useState(null);
+  const [containerWidth, setContainerWidth] = useState(1300);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver((entries) => {
+      if (!entries || entries.length === 0) return;
+      const { width } = entries[0].contentRect;
+      if (width > 0) {
+        setContainerWidth(width);
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Group matchups by sequence
   const getMatch = (seq) => matchups.find(m => m.sequence === seq);
@@ -81,70 +97,89 @@ export default function BracketView({ matchups = [], onSelectMatchup }) {
 
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
+
+    const scale = rect.width / 1300;
+    ctx.scale(dpr * scale, dpr * scale);
 
     // Clear canvas
-    ctx.clearRect(0, 0, rect.width, rect.height);
+    ctx.clearRect(0, 0, 1300, 680);
 
-    // Draw connection lines
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
-    ctx.shadowBlur = 0;
+    // Draw Conference Labels
+    ctx.save();
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = 'rgba(0, 242, 254, 0.4)';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = '#00f2fe';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('EASTERN CONFERENCE', 270, 12);
+    ctx.fillText('WESTERN CONFERENCE', 1030, 12);
+    ctx.restore();
 
-    const drawLine = (x1, y1, x2, y2) => {
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-    };
+    // Draw Column Headers (Stage Names)
+    ctx.font = 'bold 9px sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
 
-    // 1. Draw Left Side (East) Connectors
-    // Col 1 (90) to Col 2 (270)
-    // Row 1 (85) and Row 2 (255) to Col 2 Row 1 (170)
-    drawLine(170, 85, 180, 85);
-    drawLine(170, 255, 180, 255);
-    drawLine(180, 85, 180, 255);
-    drawLine(180, 170, 190, 170);
+    const stageHeaders = [
+      { name: 'FIRST ROUND', x: 90 },
+      { name: 'CONF. SEMIFINALS', x: 270 },
+      { name: 'CONF. FINALS', x: 450 },
+      { name: 'NBA FINALS', x: 650 },
+      { name: 'CONF. FINALS', x: 850 },
+      { name: 'CONF. SEMIFINALS', x: 1030 },
+      { name: 'FIRST ROUND', x: 1210 }
+    ];
 
-    // Row 3 (425) and Row 4 (595) to Col 2 Row 2 (510)
-    drawLine(170, 425, 180, 425);
-    drawLine(170, 595, 180, 595);
-    drawLine(180, 425, 180, 595);
-    drawLine(180, 510, 190, 510);
+    stageHeaders.forEach(sh => {
+      ctx.fillText(sh.name, sh.x, 32);
+    });
 
-    // Col 2 (270) to Col 3 (450)
-    // Row 1 (170) and Row 2 (510) to Col 3 Row 1 (340)
-    drawLine(350, 170, 360, 170);
-    drawLine(350, 510, 360, 510);
-    drawLine(360, 170, 360, 510);
-    drawLine(360, 340, 370, 340);
+    // Draw connection lines programmatically based on parent-child matchups
+    ctx.save();
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = 'rgba(0, 242, 254, 0.15)';
 
-    // Col 3 (450) to Center Finals (650)
-    drawLine(530, 340, 570, 340);
+    nodes.forEach(childNode => {
+      const { matchup } = childNode;
+      const feeders = [matchup.feederAId, matchup.feederBId].filter(Boolean);
 
-    // 2. Draw Right Side (West) Connectors
-    // Col 7 (1210) to Col 6 (1030)
-    // Row 1 (85) and Row 2 (255) to Col 6 Row 1 (170)
-    drawLine(1130, 85, 1120, 85);
-    drawLine(1130, 255, 1120, 255);
-    drawLine(1120, 85, 1120, 255);
-    drawLine(1120, 170, 1110, 170);
+      feeders.forEach(feederId => {
+        const parentNode = nodes.find(n => n.matchup.id === feederId);
+        if (parentNode) {
+          ctx.beginPath();
+          const pY = parentNode.y + parentNode.h / 2;
+          const cY = childNode.y + childNode.h / 2;
 
-    // Row 3 (425) and Row 4 (595) to Col 6 Row 2 (510)
-    drawLine(1130, 425, 1120, 425);
-    drawLine(1130, 595, 1120, 595);
-    drawLine(1120, 425, 1120, 595);
-    drawLine(1120, 510, 1110, 510);
+          if (parentNode.x < childNode.x) {
+            // Left to right connector
+            const pX = parentNode.x + parentNode.w;
+            const cX = childNode.x;
+            const midX = pX + (cX - pX) / 2;
 
-    // Col 6 (1030) to Col 5 (850)
-    // Row 1 (170) and Row 2 (510) to Col 5 Row 1 (340)
-    drawLine(950, 170, 940, 170);
-    drawLine(950, 510, 940, 510);
-    drawLine(940, 170, 940, 510);
-    drawLine(940, 340, 930, 340);
+            ctx.moveTo(pX, pY);
+            ctx.lineTo(midX, pY);
+            ctx.lineTo(midX, cY);
+            ctx.lineTo(cX, cY);
+          } else {
+            // Right to left connector
+            const pX = parentNode.x;
+            const cX = childNode.x + childNode.w;
+            const midX = pX - (pX - cX) / 2;
 
-    // Col 5 (850) to Center Finals (650)
-    drawLine(770, 340, 730, 340);
+            ctx.moveTo(pX, pY);
+            ctx.lineTo(midX, pY);
+            ctx.lineTo(midX, cY);
+            ctx.lineTo(cX, cY);
+          }
+          ctx.stroke();
+        }
+      });
+    });
+    ctx.restore();
 
     // Helper to draw rounded cards
     const drawRoundRect = (x, y, w, h, radius, fill, stroke, glow = null) => {
@@ -198,68 +233,64 @@ export default function BracketView({ matchups = [], onSelectMatchup }) {
       ctx.textBaseline = 'top';
       ctx.fillText(stageName.toUpperCase(), x + w / 2, y + 8);
 
-      // Draw "VS" divider in the middle
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-      ctx.font = 'bold 8px sans-serif';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('VS', x + w / 2, y + h / 2 + 1);
+      if (!isLocked) {
+        // Draw "VS" divider in the middle
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.font = 'bold 8px sans-serif';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('VS', x + w / 2, y + h / 2 + 1);
 
-      // Draw contenders (Left aligned)
-      ctx.textAlign = 'left';
-      ctx.font = 'bold 11px sans-serif';
+        // Draw contenders (Left aligned)
+        ctx.textAlign = 'left';
+        ctx.font = 'bold 11px sans-serif';
 
-      // Contender A
-      const isWinnerA = winnerName === contenderA;
-      ctx.fillStyle = isWinnerA 
-        ? '#ffb800' 
-        : (isLocked ? 'rgba(255, 255, 255, 0.3)' : '#ffffff');
-      
-      let nameA = contenderA;
-      if (ctx.measureText(nameA).width > w - 30) {
-        nameA = nameA.substring(0, 10) + '...';
-      }
-      ctx.fillText(nameA, x + 12, y + 26);
-      if (isWinnerA) {
-        ctx.fillText('🏆', x + w - 24, y + 26);
-      }
+        // Contender A
+        const isWinnerA = winnerName === contenderA;
+        ctx.fillStyle = isWinnerA 
+          ? '#ffb800' 
+          : '#ffffff';
+        
+        let nameA = contenderA;
+        if (ctx.measureText(nameA).width > w - 30) {
+          nameA = nameA.substring(0, 10) + '...';
+        }
+        ctx.fillText(nameA, x + 12, y + 26);
+        if (isWinnerA) {
+          ctx.fillText('🏆', x + w - 24, y + 26);
+        }
 
-      // Contender B
-      const isWinnerB = winnerName === contenderB;
-      ctx.fillStyle = isWinnerB 
-        ? '#ffb800' 
-        : (isLocked ? 'rgba(255, 255, 255, 0.3)' : '#ffffff');
+        // Contender B
+        const isWinnerB = winnerName === contenderB;
+        ctx.fillStyle = isWinnerB 
+          ? '#ffb800' 
+          : '#ffffff';
 
-      let nameB = contenderB;
-      if (ctx.measureText(nameB).width > w - 30) {
-        nameB = nameB.substring(0, 10) + '...';
-      }
-      ctx.fillText(nameB, x + 12, y + 54);
-      if (isWinnerB) {
-        ctx.fillText('🏆', x + w - 24, y + 54);
-      }
-
-      // Lock Overlay
-      if (isLocked) {
-        ctx.fillStyle = 'rgba(6, 7, 13, 0.6)';
-        ctx.beginPath();
-        ctx.roundRect ? ctx.roundRect(x, y, w, h, 8) : ctx.rect(x, y, w, h);
-        ctx.fill();
-
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        let nameB = contenderB;
+        if (ctx.measureText(nameB).width > w - 30) {
+          nameB = nameB.substring(0, 10) + '...';
+        }
+        ctx.fillText(nameB, x + 12, y + 54);
+        if (isWinnerB) {
+          ctx.fillText('🏆', x + w - 24, y + 54);
+        }
+      } else {
+        // Lock Overlay with Lock Icon in center, no text bleed
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
         ctx.font = 'bold 10px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText('🔒 Locked', x + w / 2, y + h / 2);
       }
     });
-  }, [matchups, hoveredNode]);
+  }, [matchups, hoveredNode, containerWidth]);
 
   const handleMouseMove = (e) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const scale = rect.width / 1300;
+    const x = (e.clientX - rect.left) / scale;
+    const y = (e.clientY - rect.top) / scale;
 
     let found = null;
     for (const node of nodes) {
@@ -278,8 +309,9 @@ export default function BracketView({ matchups = [], onSelectMatchup }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const scale = rect.width / 1300;
+    const x = (e.clientX - rect.left) / scale;
+    const y = (e.clientY - rect.top) / scale;
 
     for (const node of nodes) {
       if (x >= node.x && x <= node.x + node.w && y >= node.y && y <= node.y + node.h) {
@@ -293,23 +325,24 @@ export default function BracketView({ matchups = [], onSelectMatchup }) {
 
   const finalsMatch = finals[0];
   const championName = finalsMatch ? getMatchupWinner(finalsMatch, matchups) : null;
+  const scale = containerWidth / 1300;
 
   return (
     <div className="bracket-wrapper">
-      <div className="bracket-stages-line">
-        <span>First Round</span>
-        <span className="stage-arrow">→</span>
-        <span>Semifinals</span>
-        <span className="stage-arrow">→</span>
-        <span>Conference Finals</span>
-        <span className="stage-arrow">→</span>
-        <span>NBA Finals</span>
-      </div>
-
-      <div className="bracket-tree-canvas-container" style={{ position: 'relative', width: '1300px', height: '680px', margin: '0 auto' }}>
+      <div 
+        ref={containerRef}
+        className="bracket-tree-canvas-container" 
+        style={{ 
+          position: 'relative', 
+          width: '100%', 
+          maxWidth: '1300px', 
+          aspectRatio: '1300/680',
+          margin: '0 auto' 
+        }}
+      >
         <canvas 
           ref={canvasRef}
-          style={{ width: '1300px', height: '680px', display: 'block' }}
+          style={{ width: '100%', height: '100%', display: 'block' }}
           onMouseMove={handleMouseMove}
           onClick={handleClick}
         />
@@ -319,15 +352,16 @@ export default function BracketView({ matchups = [], onSelectMatchup }) {
             className="champion-podium fade-in" 
             style={{ 
               position: 'absolute', 
-              top: '410px', 
-              left: '575px', 
-              width: '150px', 
+              top: `${410 * scale}px`, 
+              left: `${575 * scale}px`, 
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
               boxSizing: 'border-box' 
             }}
           >
-            <span className="trophy">🏆</span>
-            <h4>CHAMPION</h4>
-            <div className="champion-name">{championName}</div>
+            <span className="trophy-float">🏆</span>
+            <h4 className="champion-podium-h4">CHAMPION</h4>
+            <div className="champion-podium-name">{championName}</div>
           </div>
         )}
       </div>
