@@ -105,6 +105,7 @@ describe('Backend API Integration Tests', () => {
       expect(m.isLocked).toBe(true);
       expect(m.contenderA).toContain('Winner of');
       expect(m.contenderB).toContain('Winner of');
+      expect(m.title).toContain('Winner of'); // Verify title masking
       expect(m.games).toEqual([]);
     }
   });

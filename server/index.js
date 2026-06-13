@@ -96,7 +96,10 @@ async function resolveTournamentState(tournamentId, sessionId) {
         const feederTeams = teamsMap.get(m.feeder_a_id) || [];
         contenderA = feederTeams.find(t => mTeams.includes(t)) || 'TBD';
       } else {
-        contenderA = `Winner of ${feederA ? feederA.title : 'Matchup'}`;
+        const feederLabel = feederA.stage_name === 'First Round' 
+          ? (feederA.title || 'First Round')
+          : feederA.stage_name;
+        contenderA = `Winner of ${feederLabel}`;
       }
     }
 
@@ -109,7 +112,10 @@ async function resolveTournamentState(tournamentId, sessionId) {
         const feederTeams = teamsMap.get(m.feeder_b_id) || [];
         contenderB = feederTeams.find(t => mTeams.includes(t)) || 'TBD';
       } else {
-        contenderB = `Winner of ${feederB ? feederB.title : 'Matchup'}`;
+        const feederLabel = feederB.stage_name === 'First Round' 
+          ? (feederB.title || 'First Round')
+          : feederB.stage_name;
+        contenderB = `Winner of ${feederLabel}`;
       }
     }
 
@@ -133,7 +139,7 @@ async function resolveTournamentState(tournamentId, sessionId) {
 
     resolvedMatchups.push({
       id: m.id,
-      title: m.title,
+      title: isLocked ? `${contenderA} vs ${contenderB}` : m.title,
       stageName: m.stage_name,
       sequence: m.sequence,
       feederAId: m.feeder_a_id,
