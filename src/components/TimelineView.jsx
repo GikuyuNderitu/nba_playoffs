@@ -1,7 +1,7 @@
 import React from 'react';
 import SkipControl from './SkipControl';
 
-export default function TimelineView({ games = [], onPlayGame, onToggleProgress }) {
+export default function TimelineView({ tournamentId, games = [], onPlayGame, onToggleProgress }) {
   if (games.length === 0) {
     return (
       <div className="glass-panel" style={{ textAlign: 'center', padding: '48px 24px' }}>
@@ -51,8 +51,20 @@ export default function TimelineView({ games = [], onPlayGame, onToggleProgress 
               
               <div className="timeline-games">
                 {gamesForDate.map((g) => {
+                  const cardHref = `/t/${tournamentId || 'nba-playoffs-2026'}/m/${g.matchup_id}/g/${g.id}`;
                   return (
-                    <div key={g.id} className={`timeline-game-card ${g.status}`}>
+                    <a 
+                      key={g.id} 
+                      href={cardHref} 
+                      className={`timeline-game-card ${g.status}`}
+                      onClick={(e) => {
+                        if (e.target.closest('.skip-control-wrapper') || e.target.closest('button')) {
+                          return;
+                        }
+                        e.preventDefault();
+                        onPlayGame(g);
+                      }}
+                    >
                       <div className="timeline-game-body">
                         <div className="timeline-game-header">
                           <span className="badge badge-cyan" style={{ fontSize: '9px' }}>
@@ -71,20 +83,21 @@ export default function TimelineView({ games = [], onPlayGame, onToggleProgress 
                       </div>
                       
                       <div className="timeline-game-actions">
-                        <button 
+                        <div 
                           className={`play-btn-circle ${g.status === 'watched' ? 'watched' : ''}`}
-                          onClick={() => onPlayGame(g)}
                           title="Watch Highlights"
                         >
                           ▶
-                        </button>
+                        </div>
                         
-                        <SkipControl 
-                          status={g.status}
-                          onChange={(newStatus) => onToggleProgress(g.id, newStatus)}
-                        />
+                        <div className="skip-control-wrapper">
+                          <SkipControl 
+                            status={g.status}
+                            onChange={(newStatus) => onToggleProgress(g.id, newStatus)}
+                          />
+                        </div>
                       </div>
-                    </div>
+                    </a>
                   );
                 })}
               </div>

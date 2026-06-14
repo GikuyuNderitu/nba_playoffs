@@ -51,25 +51,88 @@ function get(sql, params = []) {
 }
 
 // Initialize tables
-function setupSchema() {
+async function setupSchema() {
+  // Check if tables already exist to optimize cold starts
+  try {
+    const tables = await all("SELECT name FROM sqlite_master WHERE type='table'");
+    const tableNames = tables.map(t => t.name);
+    const requiredTables = [
+      'import_templates',
+      'import_sources',
+      'tournaments',
+      'matchups',
+      'games',
+      'watch_sessions',
+      'progress',
+      'session_tournaments'
+    ];
+    const allExist = requiredTables.every(name => tableNames.includes(name));
+    
+    if (allExist) {
+      await run('PRAGMA foreign_keys = ON');
+      console.log('[Database] Schema already verified. Skipping table creation.');
+      return;
+    }
+  } catch (err) {
+    console.warn('[Database] Failed to verify schema existence, proceeding with setup:', err.message);
+  }
+
   return new Promise((resolve, reject) => {
     db.serialize(async () => {
       try {
         // Enable foreign keys
         await run('PRAGMA foreign_keys = ON');
 
-        // 1. Tournaments
+        // 1. Import Templates
+        await run(`
+          CREATE TABLE IF NOT EXISTS import_templates (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            patterns TEXT NOT NULL, -- JSON array of { gameRegex, fallbackRegex }
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          )
+        `);
+
+        // 2. Import Sources
+        await run(`
+          CREATE TABLE IF NOT EXISTS import_sources (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            source_type TEXT NOT NULL, -- 'youtube_playlist', etc.
+            resource TEXT NOT NULL, -- e.g., playlist ID
+            import_template_id TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (import_template_id) REFERENCES import_templates(id) ON DELETE CASCADE
+          )
+        `);
+
+        // 3. Tournaments
         await run(`
           CREATE TABLE IF NOT EXISTS tournaments (
             id TEXT PRIMARY KEY,
             title TEXT NOT NULL,
             description TEXT,
             type TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            source_id TEXT,
+            last_sync_at DATETIME,
+            completed INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (source_id) REFERENCES import_sources(id) ON DELETE SET NULL
           )
         `);
 
-        // 2. Matchups (with feeder foreign key constraints)
+        // Ensure columns exist on tournaments if the table was created before
+        try {
+          await run("ALTER TABLE tournaments ADD COLUMN source_id TEXT");
+        } catch (e) {}
+        try {
+          await run("ALTER TABLE tournaments ADD COLUMN last_sync_at DATETIME");
+        } catch (e) {}
+        try {
+          await run("ALTER TABLE tournaments ADD COLUMN completed INTEGER DEFAULT 0");
+        } catch (e) {}
+
+        // 4. Matchups (with feeder foreign key constraints)
         await run(`
           CREATE TABLE IF NOT EXISTS matchups (
             id TEXT PRIMARY KEY,
@@ -85,7 +148,7 @@ function setupSchema() {
           )
         `);
 
-        // 3. Games
+        // 5. Games
         await run(`
           CREATE TABLE IF NOT EXISTS games (
             id TEXT PRIMARY KEY,
@@ -101,7 +164,7 @@ function setupSchema() {
           )
         `);
 
-        // 4. Watch Sessions
+        // 6. Watch Sessions
         await run(`
           CREATE TABLE IF NOT EXISTS watch_sessions (
             id TEXT PRIMARY KEY,
@@ -109,7 +172,7 @@ function setupSchema() {
           )
         `);
 
-        // 5. Progress
+        // 7. Progress
         await run(`
           CREATE TABLE IF NOT EXISTS progress (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -120,6 +183,20 @@ function setupSchema() {
             FOREIGN KEY (session_id) REFERENCES watch_sessions(id) ON DELETE CASCADE,
             FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE,
             UNIQUE (session_id, game_id)
+          )
+        `);
+
+        // 8. Session Tournaments Progress & Settings
+        await run(`
+          CREATE TABLE IF NOT EXISTS session_tournaments (
+            session_id TEXT NOT NULL,
+            tournament_id TEXT NOT NULL,
+            is_watched INTEGER DEFAULT 0,
+            is_watching INTEGER DEFAULT 0,
+            spoiler_free INTEGER DEFAULT 1,
+            PRIMARY KEY (session_id, tournament_id),
+            FOREIGN KEY (session_id) REFERENCES watch_sessions(id) ON DELETE CASCADE,
+            FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
           )
         `);
 

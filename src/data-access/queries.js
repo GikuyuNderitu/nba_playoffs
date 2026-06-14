@@ -16,12 +16,32 @@ const fetchJson = async (url, options = {}) => {
 };
 
 /**
- * Hook to retrieve all available tournaments.
+ * Hook to retrieve all available tournaments joined with session status.
  */
-export function useTournaments() {
+export function useTournaments(sessionId) {
   return useQuery({
-    queryKey: ['tournaments'],
-    queryFn: () => fetchJson('/api/tournaments')
+    queryKey: ['tournaments', sessionId],
+    queryFn: () => fetchJson(`/api/tournaments?session_id=${sessionId || ''}`)
+  });
+}
+
+/**
+ * Hook to update tournament settings (spoiler-free mode, manual watched status).
+ */
+export function useUpdateTournamentSettings(sessionId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ tournamentId, spoilerFree, isWatched }) =>
+      fetchJson(`/api/sessions/${sessionId}/tournaments/${tournamentId}/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spoilerFree, isWatched })
+      }),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['tournaments', sessionId] });
+      queryClient.invalidateQueries({ queryKey: ['tournament', variables.tournamentId, sessionId] });
+      queryClient.invalidateQueries({ queryKey: ['timeline', variables.tournamentId, sessionId] });
+    }
   });
 }
 

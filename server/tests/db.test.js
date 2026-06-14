@@ -81,18 +81,18 @@ describe('Database Schema & Seeding Unit Tests', () => {
   it('should seed the database successfully with complete 2025-2026 NBA playoffs data', async () => {
     await seedData();
 
-    // Verify 1 tournament is seeded
+    // Verify 2 tournaments are seeded
     const tournaments = await all('SELECT * FROM tournaments');
-    expect(tournaments.length).toBe(1);
-    expect(tournaments[0].id).toBe('nba-playoffs-2026');
+    expect(tournaments.length).toBe(2);
+    expect(tournaments.some(t => t.id === 'nba-playoffs-2026')).toBe(true);
 
-    // Verify 15 matchups are seeded
+    // Verify 17 matchups are seeded (15 NBA + 2 Linear Mock)
     const matchups = await all('SELECT * FROM matchups');
-    expect(matchups.length).toBe(15);
+    expect(matchups.length).toBe(17);
 
-    // Verify 83 games are seeded
+    // Verify 87 games are seeded (83 NBA + 4 Linear Mock)
     const games = await all('SELECT * FROM games');
-    expect(games.length).toBe(83);
+    expect(games.length).toBe(87);
 
     // Verify first matchup in sequence is CELTICS vs 76ERS
     const firstMatchup = await get('SELECT * FROM matchups ORDER BY sequence ASC LIMIT 1');

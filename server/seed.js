@@ -6,24 +6,86 @@ const seedData = async () => {
   // Make sure schema exists
   await setupSchema();
 
+  await run('BEGIN TRANSACTION');
+
   // Clean existing data
   console.log('[Seed] Cleaning existing data...');
   await run('DELETE FROM progress');
   await run('DELETE FROM watch_sessions');
+  await run('DELETE FROM session_tournaments');
   await run('DELETE FROM games');
   await run('DELETE FROM matchups');
   await run('DELETE FROM tournaments');
+  await run('DELETE FROM import_sources');
+  await run('DELETE FROM import_templates');
+
+  // Seed Import Templates
+  console.log('[Seed] Seeding import templates...');
+  await run(`
+    INSERT INTO import_templates (id, name, patterns)
+    VALUES (?, ?, ?)
+  `, [
+    'nba',
+    'NBA Playoff Highlights Template',
+    JSON.stringify([
+      {
+        gameRegex: '^(?:EXTENDED:\\s+)?#(\\d+)\\s+([A-Z0-9\\s]+?)\\s+at\\s+#(\\d+)\\s+([A-Z0-9\\s]+?)\\s*\\|\\s*([A-Z0-9\\s]+?)\\s+GAME\\s+(\\d+)\\s+HIGHLIGHTS',
+        fallbackRegex: '^(?:EXTENDED:\\s+)?([A-Z0-9\\s#]+?)\\s+(?:at|vs)\\s+([A-Z0-9\\s#]+?)\\s*\\|\\s*([A-Z0-9\\s]+?)\\s+GAME\\s+(\\d+)\\s+HIGHLIGHTS'
+      }
+    ])
+  ]);
+
+  await run(`
+    INSERT INTO import_templates (id, name, patterns)
+    VALUES (?, ?, ?)
+  `, [
+    'generic',
+    'Generic VS Match Template',
+    JSON.stringify([
+      {
+        gameRegex: '^(?:EXTENDED:\\s+)?([A-Z0-9\\s#]+?)\\s+vs\\s+([A-Z0-9\\s#]+?)\\s*\\|\\s*([A-Z0-9\\s]+?)\\s+-\\s+Game\\s+(\\d+)',
+        fallbackRegex: '^(?:EXTENDED:\\s+)?([A-Z0-9\\s#]+?)\\s+vs\\s+([A-Z0-9\\s#]+?)\\s*\\|\\s*([A-Z0-9\\s]+?)\\s+Game\\s+(\\d+)'
+      }
+    ])
+  ]);
+
+  // Seed Import Sources
+  console.log('[Seed] Seeding import sources...');
+  await run(`
+    INSERT INTO import_sources (id, name, source_type, resource, import_template_id)
+    VALUES (?, ?, ?, ?, ?)
+  `, [
+    'nba-playoffs-2026-source',
+    'NBA Playoffs 2026 YouTube Playlist',
+    'youtube_playlist',
+    'PLlVlyGVtvuVnHNlPZ6vWeEuK2BNMF7c4t',
+    'nba'
+  ]);
 
   // 1. Insert Tournament
   console.log('[Seed] Seeding tournaments...');
   await run(`
-    INSERT INTO tournaments (id, title, description, type)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO tournaments (id, title, description, type, source_id, completed)
+    VALUES (?, ?, ?, ?, ?, ?)
   `, [
     'nba-playoffs-2026',
     'NBA Playoffs | 2025-26 Season',
     'Experience the entire NBA Playoffs bracket from Round 1 through the NBA Finals in strict chronological order, completely spoiler-free.',
-    'bracket'
+    'bracket',
+    'nba-playoffs-2026-source',
+    0
+  ]);
+
+  await run(`
+    INSERT INTO tournaments (id, title, description, type, source_id, completed)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `, [
+    'linear-mock-tournament',
+    'FIFA World Cup Mock Group Stage',
+    'Experience a mock soccer tournament group stage timeline, linear and spoiler-free.',
+    'linear',
+    null,
+    0
   ]);
 
   // 2. Insert Matchups
@@ -1101,7 +1163,105 @@ const seedData = async () => {
     ]);
   }
 
-  console.log(`[Seed] Seeded ${matchups.length} matchups and ${games.length} games.`);
+  // Seed linear mock tournament data
+  console.log('[Seed] Seeding linear mock tournament matchups and games...');
+  const linearMatchups = [
+    {
+      id: 'linear-mock-stage-1',
+      title: 'Group A - Matchday 1',
+      stageName: 'Group Stage',
+      sequence: 1
+    },
+    {
+      id: 'linear-mock-stage-2',
+      title: 'Group A - Matchday 2',
+      stageName: 'Group Stage',
+      sequence: 2
+    }
+  ];
+
+  for (const m of linearMatchups) {
+    await run(`
+      INSERT INTO matchups (id, tournament_id, title, stage_name, sequence, feeder_a_id, feeder_b_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `, [
+      m.id,
+      'linear-mock-tournament',
+      m.title,
+      m.stageName,
+      m.sequence,
+      null,
+      null
+    ]);
+  }
+
+  const linearGames = [
+    {
+      id: 'linear-mock-stage-1-game-1',
+      matchup_id: 'linear-mock-stage-1',
+      game_number: 1,
+      title: 'USA vs England | Group Stage Game 1 Highlights',
+      team_a: 'USA',
+      team_b: 'ENGLAND',
+      date: '2026-06-01T18:00:00Z',
+      video_id: 'bt3NwN7k8bY',
+      duration: '10 minutes'
+    },
+    {
+      id: 'linear-mock-stage-1-game-2',
+      matchup_id: 'linear-mock-stage-1',
+      game_number: 2,
+      title: 'Wales vs Iran | Group Stage Game 2 Highlights',
+      team_a: 'WALES',
+      team_b: 'IRAN',
+      date: '2026-06-02T18:00:00Z',
+      video_id: 'bt3NwN7k8bY',
+      duration: '12 minutes'
+    },
+    {
+      id: 'linear-mock-stage-2-game-1',
+      matchup_id: 'linear-mock-stage-2',
+      game_number: 1,
+      title: 'USA vs Iran | Group Stage Game 3 Highlights',
+      team_a: 'USA',
+      team_b: 'IRAN',
+      date: '2026-06-05T18:00:00Z',
+      video_id: 'bt3NwN7k8bY',
+      duration: '11 minutes'
+    },
+    {
+      id: 'linear-mock-stage-2-game-2',
+      matchup_id: 'linear-mock-stage-2',
+      game_number: 2,
+      title: 'England vs Wales | Group Stage Game 4 Highlights',
+      team_a: 'ENGLAND',
+      team_b: 'WALES',
+      date: '2026-06-06T18:00:00Z',
+      video_id: 'bt3NwN7k8bY',
+      duration: '15 minutes'
+    }
+  ];
+
+  for (const game of linearGames) {
+    await run(`
+      INSERT INTO games (id, matchup_id, game_number, title, team_a, team_b, date, video_id, duration)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      game.id,
+      game.matchup_id,
+      game.game_number,
+      game.title,
+      game.team_a,
+      game.team_b,
+      game.date,
+      game.video_id,
+      game.duration
+    ]);
+  }
+
+  await run('COMMIT');
+
+  console.log(`[Seed] Seeded ${matchups.length + linearMatchups.length} matchups and ${games.length + linearGames.length} games.`);
   console.log('[Seed] Database seeding completed successfully.');
 };
 

@@ -63,8 +63,8 @@ describe('Backend API Integration Tests', () => {
   it('GET /api/tournaments should list tournaments', async () => {
     const res = await request(app).get('/api/tournaments');
     expect(res.status).toBe(200);
-    expect(res.body.length).toBe(1);
-    expect(res.body[0].id).toBe('nba-playoffs-2026');
+    expect(res.body.length).toBe(2);
+    expect(res.body.some(t => t.id === 'nba-playoffs-2026')).toBe(true);
   });
 
   it('POST /api/sessions should create a new watch session', async () => {

@@ -30,6 +30,7 @@ export default function BracketView({ matchups = [], onSelectMatchup }) {
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const [hoveredNode, setHoveredNode] = useState(null);
+  const [focusedMatchupId, setFocusedMatchupId] = useState(null);
   const [containerWidth, setContainerWidth] = useState(1300);
 
   useEffect(() => {
@@ -214,7 +215,8 @@ export default function BracketView({ matchups = [], onSelectMatchup }) {
 
     // Draw matchup cards
     nodes.forEach(node => {
-      const isHovered = hoveredNode && hoveredNode.matchup.id === node.matchup.id;
+      const isFocused = focusedMatchupId === node.matchup.id;
+      const isHovered = (hoveredNode && hoveredNode.matchup.id === node.matchup.id) || isFocused;
       const { matchup, x, y, w, h, winnerName } = node;
       const { contenderA, contenderB, isLocked, stageName } = matchup;
 
@@ -225,6 +227,17 @@ export default function BracketView({ matchups = [], onSelectMatchup }) {
       const glowColor = isHovered ? 'rgba(0, 242, 254, 0.4)' : null;
 
       drawRoundRect(x, y, w, h, 8, bgFill, borderColor, glowColor);
+
+      if (isFocused) {
+        ctx.save();
+        ctx.strokeStyle = '#00f2fe';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.rect(x - 3.5, y - 3.5, w + 7, h + 7);
+        ctx.stroke();
+        ctx.restore();
+      }
 
       // Draw stage text (centered badge)
       ctx.fillStyle = isLocked ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.45)';
@@ -282,7 +295,7 @@ export default function BracketView({ matchups = [], onSelectMatchup }) {
         ctx.fillText('🔒 Locked', x + w / 2, y + h / 2);
       }
     });
-  }, [matchups, hoveredNode, containerWidth]);
+  }, [matchups, hoveredNode, containerWidth, focusedMatchupId]);
 
   const handleMouseMove = (e) => {
     const canvas = canvasRef.current;
@@ -345,7 +358,31 @@ export default function BracketView({ matchups = [], onSelectMatchup }) {
           style={{ width: '100%', height: '100%', display: 'block' }}
           onMouseMove={handleMouseMove}
           onClick={handleClick}
-        />
+        >
+          <ul className="sr-only">
+            {nodes.map(node => (
+              <li key={node.matchup.id}>
+                {node.matchup.isLocked ? (
+                  <span>
+                    Locked Matchup: {node.matchup.contenderA} vs {node.matchup.contenderB} ({node.matchup.stageName})
+                  </span>
+                ) : (
+                  <a
+                    href={`/t/${node.matchup.tournamentId || 'nba-playoffs-2026'}/m/${node.matchup.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onSelectMatchup(node.matchup);
+                    }}
+                    onFocus={() => setFocusedMatchupId(node.matchup.id)}
+                    onBlur={() => setFocusedMatchupId(null)}
+                  >
+                    View Matchup: {node.matchup.title} ({node.matchup.stageName})
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </canvas>
         
         {championName && (
           <div 

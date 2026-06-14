@@ -5,6 +5,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { db, run, all, get } = require('./db');
 const { parseAndImportPlaylist } = require('./importer');
+const { startScheduler, syncTournament } = require('./scheduler');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -21,6 +22,7 @@ const asyncHandler = fn => (req, res, next) => {
 // ============================================================================
 // Helper: Resolve Bracket & Contenders dynamically for a session
 // ============================================================================
+// ============================================================================
 async function resolveTournamentState(tournamentId, sessionId) {
   const tournament = await get('SELECT * FROM tournaments WHERE id = ?', [tournamentId]);
   if (!tournament) return null;
@@ -34,10 +36,17 @@ async function resolveTournamentState(tournamentId, sessionId) {
   `, [tournamentId]);
 
   let progressMap = new Map();
+  let spoilerFree = 1;
+
   if (sessionId) {
     const progressRows = await all('SELECT game_id, status FROM progress WHERE session_id = ?', [sessionId]);
     for (const p of progressRows) {
       progressMap.set(p.game_id, p.status);
+    }
+    
+    const settings = await get('SELECT spoiler_free FROM session_tournaments WHERE session_id = ? AND tournament_id = ?', [sessionId, tournamentId]);
+    if (settings) {
+      spoilerFree = settings.spoiler_free;
     }
   }
 
@@ -70,13 +79,26 @@ async function resolveTournamentState(tournamentId, sessionId) {
 
     // Determine lock state
     let isLocked = false;
-    if (m.feeder_a_id) {
-      const parentAResolved = resolvedMap.get(m.feeder_a_id);
-      if (!parentAResolved) isLocked = true;
-    }
-    if (m.feeder_b_id) {
-      const parentBResolved = resolvedMap.get(m.feeder_b_id);
-      if (!parentBResolved) isLocked = true;
+    if (spoilerFree === 1) {
+      if (tournament.type === 'linear') {
+        if (m.sequence > 1) {
+          const precedingMatchup = matchups.find(pm => pm.sequence === m.sequence - 1);
+          if (precedingMatchup) {
+            const precedingResolved = resolvedMap.get(precedingMatchup.id);
+            if (!precedingResolved) isLocked = true;
+          }
+        }
+      } else {
+        // bracket type
+        if (m.feeder_a_id) {
+          const parentAResolved = resolvedMap.get(m.feeder_a_id);
+          if (!parentAResolved) isLocked = true;
+        }
+        if (m.feeder_b_id) {
+          const parentBResolved = resolvedMap.get(m.feeder_b_id);
+          if (!parentBResolved) isLocked = true;
+        }
+      }
     }
 
     // Resolve contenders
@@ -153,6 +175,7 @@ async function resolveTournamentState(tournamentId, sessionId) {
 
   return {
     ...tournament,
+    spoiler_free: spoilerFree,
     matchups: resolvedMatchups
   };
 }
@@ -166,9 +189,36 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// List all tournaments
+// Database & Seeding Health Check
+app.get('/api/dbhealth', asyncHandler(async (req, res) => {
+  try {
+    const result = await get('SELECT id FROM tournaments LIMIT 1');
+    if (!result) {
+      return res.status(503).json({ status: 'seeding', message: 'Database tables initialized but empty' });
+    }
+    res.json({ status: 'ok', database: 'connected', tournamentId: result.id });
+  } catch (err) {
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+}));
+
+// List all tournaments joined with session status
 app.get('/api/tournaments', asyncHandler(async (req, res) => {
-  const tournaments = await all('SELECT * FROM tournaments ORDER BY created_at DESC');
+  const sessionId = req.query.session_id;
+  let tournaments;
+  if (sessionId) {
+    tournaments = await all(`
+      SELECT t.*, 
+             COALESCE(st.is_watched, 0) as is_watched, 
+             COALESCE(st.is_watching, 0) as is_watching,
+             COALESCE(st.spoiler_free, 1) as spoiler_free
+      FROM tournaments t
+      LEFT JOIN session_tournaments st ON t.id = st.tournament_id AND st.session_id = ?
+      ORDER BY t.created_at DESC
+    `, [sessionId]);
+  } else {
+    tournaments = await all('SELECT *, 0 as is_watched, 0 as is_watching, 1 as spoiler_free FROM tournaments ORDER BY created_at DESC');
+  }
   res.json(tournaments);
 }));
 
@@ -256,6 +306,58 @@ app.post('/api/sessions/:id/progress', asyncHandler(async (req, res) => {
     `, [sessionId, gameId, status]);
   }
 
+  // Calculate and update session_tournaments status
+  const tournamentInfo = await get(`
+    SELECT m.tournament_id 
+    FROM games g
+    JOIN matchups m ON g.matchup_id = m.id
+    WHERE g.id = ?
+  `, [gameId]);
+
+  if (tournamentInfo) {
+    const tournamentId = tournamentInfo.tournament_id;
+    const totalGamesRow = await get(`
+      SELECT COUNT(g.id) as total
+      FROM games g
+      JOIN matchups m ON g.matchup_id = m.id
+      WHERE m.tournament_id = ?
+    `, [tournamentId]);
+
+    const completedGamesRow = await get(`
+      SELECT COUNT(p.id) as completed
+      FROM progress p
+      JOIN games g ON p.game_id = g.id
+      JOIN matchups m ON g.matchup_id = m.id
+      WHERE p.session_id = ? AND m.tournament_id = ? AND p.status IN ('watched', 'skipped')
+    `, [sessionId, tournamentId]);
+
+    const total = totalGamesRow ? totalGamesRow.total : 0;
+    const completed = completedGamesRow ? completedGamesRow.completed : 0;
+
+    let isWatched = 0;
+    let isWatching = 0;
+
+    if (completed === 0) {
+      isWatched = 0;
+      isWatching = 0;
+    } else if (completed < total) {
+      isWatched = 0;
+      isWatching = 1;
+    } else {
+      isWatched = 1;
+      isWatching = 0;
+    }
+
+    await run(`
+      INSERT INTO session_tournaments (session_id, tournament_id, is_watched, is_watching, spoiler_free)
+      VALUES (?, ?, ?, ?, 1)
+      ON CONFLICT(session_id, tournament_id)
+      DO UPDATE SET 
+        is_watched = excluded.is_watched,
+        is_watching = excluded.is_watching
+    `, [sessionId, tournamentId, isWatched, isWatching]);
+  }
+
   res.json({ success: true });
 }));
 
@@ -325,6 +427,56 @@ app.post('/api/tournaments/import', asyncHandler(async (req, res) => {
   res.json({ success: true, ...result });
 }));
 
+// Update tournament settings for a session (spoiler-free, manual is_watched override)
+app.post('/api/sessions/:sessionId/tournaments/:tournamentId/settings', asyncHandler(async (req, res) => {
+  const { sessionId, tournamentId } = req.params;
+  const { spoilerFree, isWatched } = req.body;
+
+  // Verify session
+  const session = await get('SELECT id FROM watch_sessions WHERE id = ?', [sessionId]);
+  if (!session) {
+    return res.status(404).json({ error: 'Watch session not found' });
+  }
+
+  // Verify tournament
+  const tournament = await get('SELECT id FROM tournaments WHERE id = ?', [tournamentId]);
+  if (!tournament) {
+    return res.status(404).json({ error: 'Tournament not found' });
+  }
+
+  // Load existing settings or insert defaults
+  const existing = await get('SELECT * FROM session_tournaments WHERE session_id = ? AND tournament_id = ?', [sessionId, tournamentId]);
+  
+  const nextSpoilerFree = spoilerFree !== undefined ? (spoilerFree ? 1 : 0) : (existing ? existing.spoiler_free : 1);
+  const nextIsWatched = isWatched !== undefined ? (isWatched ? 1 : 0) : (existing ? existing.is_watched : 0);
+  const nextIsWatching = existing ? existing.is_watching : 0;
+
+  await run(`
+    INSERT INTO session_tournaments (session_id, tournament_id, is_watched, is_watching, spoiler_free)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(session_id, tournament_id)
+    DO UPDATE SET
+      is_watched = excluded.is_watched,
+      spoiler_free = excluded.spoiler_free
+  `, [sessionId, tournamentId, nextIsWatched, nextIsWatching, nextSpoilerFree]);
+
+  res.json({ success: true, spoilerFree: nextSpoilerFree === 1, isWatched: nextIsWatched === 1 });
+}));
+
+// Trigger a manual sync for a tournament (Admin only)
+app.post('/api/tournaments/:id/sync', asyncHandler(async (req, res) => {
+  const tournamentId = req.params.id;
+  const authHeader = req.headers.authorization;
+  const adminKey = process.env.ADMIN_API_KEY;
+
+  if (!adminKey || authHeader !== `Bearer ${adminKey}`) {
+    return res.status(401).json({ error: 'Unauthorized manual sync request' });
+  }
+
+  await syncTournament(tournamentId);
+  res.json({ success: true, message: `Sync completed for tournament: ${tournamentId}` });
+}));
+
 // ============================================================================
 // Static Asset Serving & Global Error Handler
 // ============================================================================
@@ -360,6 +512,8 @@ if (require.main === module) {
         console.log('[Server] Database is empty. Seeding initial playoffs data...');
         await seedData();
       }
+      // Start background sync scheduler
+      startScheduler();
     })
     .catch((err) => {
       console.error('[Server] Database schema initialization failed:', err.message);
