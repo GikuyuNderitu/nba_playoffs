@@ -6,8 +6,6 @@ const seedData = async () => {
   // Make sure schema exists
   await setupSchema();
 
-  await run('BEGIN TRANSACTION');
-
   // Clean existing data
   console.log('[Seed] Cleaning existing data...');
   await run('DELETE FROM progress');
@@ -62,7 +60,7 @@ const seedData = async () => {
     'nba'
   ]);
 
-  // 1. Insert Tournament
+  // 1. Insert Tournaments
   console.log('[Seed] Seeding tournaments...');
   await run(`
     INSERT INTO tournaments (id, title, description, type, source_id, completed)
@@ -1258,8 +1256,6 @@ const seedData = async () => {
       game.duration
     ]);
   }
-
-  await run('COMMIT');
 
   console.log(`[Seed] Seeded ${matchups.length + linearMatchups.length} matchups and ${games.length + linearGames.length} games.`);
   console.log('[Seed] Database seeding completed successfully.');
