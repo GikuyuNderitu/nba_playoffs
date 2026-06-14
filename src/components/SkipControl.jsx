@@ -36,7 +36,7 @@ export default function SkipControl({ status = 'unwatched', onChange }) {
 
   return (
     <button
-      className={`font-sans text-[11px] font-semibold inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-transparent cursor-pointer transition-all duration-300 hover:bg-white/3 ${className}`}
+      className={`font-sans text-[11px] font-semibold inline-flex items-center justify-center gap-1.5 p-1.5 md:px-3 md:py-1.5 rounded-lg border bg-transparent cursor-pointer transition-all duration-300 hover:bg-white/3 ${className}`}
       onClick={(e) => {
         e.stopPropagation();
         onChange(nextStatus);
@@ -45,7 +45,7 @@ export default function SkipControl({ status = 'unwatched', onChange }) {
       aria-label={`Watch status: ${label}`}
     >
       <span className="control-icon">{icon}</span>
-      <span className="control-label">{label}</span>
+      <span className="control-label hidden md:inline">{label}</span>
     </button>
   );
 }

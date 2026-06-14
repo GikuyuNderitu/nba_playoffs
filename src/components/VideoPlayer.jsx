@@ -87,7 +87,7 @@ export default function VideoPlayer({ videoId, onVideoEnded }) {
   }, [videoId]);
 
   return (
-    <div className="player-aspect-wrapper">
+    <div className="relative w-full aspect-video bg-black [&>div]:absolute [&>div]:top-0 [&>div]:left-0 [&>div]:w-full [&>div]:h-full [&>iframe]:absolute [&>iframe]:top-0 [&>iframe]:left-0 [&>iframe]:w-full [&>iframe]:h-full border-0">
       <div ref={containerRef}></div>
     </div>
   );

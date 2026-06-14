@@ -212,21 +212,23 @@ export default function App() {
     : null;
 
   return (
-    <div className="app-container">
-      <header className="app-header">
+    <div className="flex flex-col min-h-screen bg-[#06070d] text-[#f5f6fa]">
+      <header className="sticky top-0 z-50 flex justify-between items-center px-4 py-3 md:px-8 md:py-4 bg-[#0d0e17] border-b border-solid border-white/6 backdrop-blur-md">
         <div className="brand-section">
-          <h1 onClick={handleBrandClick} style={{ cursor: 'pointer' }}>
+          <h1 
+            onClick={handleBrandClick} 
+            className="cursor-pointer text-xl md:text-2xl font-extrabold flex items-center gap-2 bg-gradient-to-br from-[#f5f6fa] via-[#f5f6fa] to-[#00f2fe] bg-clip-text text-transparent"
+          >
             🏀 ChronoCourt
           </h1>
         </div>
-        <div className="header-actions">
+        <div className="hidden md:flex items-center gap-4">
           {sessionId && (
-            <div className="session-badge">
+            <div className="text-sm text-[#8a8f9f] bg-[#121424]/70 px-3.5 py-2 rounded-lg border border-solid border-white/6 flex items-center">
               <span>Session:</span>
-              <span className="session-id">{sessionId}</span>
+              <span className="font-mono font-semibold text-[#00f2fe] ml-1.5">{sessionId}</span>
               <button 
-                className="btn btn-tiny"
-                style={{ borderColor: 'var(--neon-purple)', color: 'var(--neon-purple)', marginLeft: '8px' }}
+                className="btn btn-tiny border-solid border-[#9d4edd] text-[#9d4edd] ml-2 hover:bg-[#9d4edd]/15"
                 onClick={handleCloneSession}
                 disabled={cloneSessionMutation.isPending}
               >
@@ -238,15 +240,15 @@ export default function App() {
       </header>
 
       {currentView !== 'matchup' && (
-        <div className="view-tabs-container">
+        <div className="flex justify-center gap-4 my-8 mb-4 border-b border-solid border-white/6 pb-4">
           <button 
-            className={`tab-btn ${currentView === 'bracket' ? 'active' : ''}`}
+            className={`font-sans text-sm font-semibold py-2.5 px-6 rounded-lg border border-solid border-transparent bg-transparent text-[#8a8f9f] cursor-pointer transition-all duration-300 hover:text-[#f5f6fa] ${currentView === 'bracket' ? 'text-[#00f2fe] border-[#00f2fe]/30 bg-[#00f2fe]/[0.04] shadow-[0_0_15px_rgba(0,242,254,0.08)]' : ''}`}
             onClick={() => handleTabChange('bracket')}
           >
             Bracket View
           </button>
           <button 
-            className={`tab-btn ${currentView === 'timeline' ? 'active' : ''}`}
+            className={`font-sans text-sm font-semibold py-2.5 px-6 rounded-lg border border-solid border-transparent bg-transparent text-[#8a8f9f] cursor-pointer transition-all duration-300 hover:text-[#f5f6fa] ${currentView === 'timeline' ? 'text-[#00f2fe] border-[#00f2fe]/30 bg-[#00f2fe]/[0.04] shadow-[0_0_15px_rgba(0,242,254,0.08)]' : ''}`}
             onClick={() => handleTabChange('timeline')}
           >
             Timeline View
@@ -254,11 +256,11 @@ export default function App() {
         </div>
       )}
 
-      <main className="main-content">
+      <main className="flex-1 px-4 py-6 md:px-12 md:py-10 max-w-[1400px] w-full mx-auto">
         {isLoading ? (
-          <div className="loading-container">
-            <div className="spinner"></div>
-            <p style={{ color: 'var(--text-secondary)' }}>Loading ChronoCourt...</p>
+          <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+            <div className="w-10 h-10 border-3 border-solid border-white/5 rounded-full border-t-[#00f2fe] animate-spin"></div>
+            <p style={{ color: 'var(--color-text-secondary)' }}>Loading ChronoCourt...</p>
           </div>
         ) : (
           <>
@@ -297,6 +299,23 @@ export default function App() {
           </>
         )}
       </main>
+
+      <footer className="w-full text-center py-6 border-t border-solid border-white/6 bg-[#0d0e17] mt-auto">
+        {sessionId && (
+          <div className="flex md:hidden flex-col items-center gap-2 mb-3 text-xs md:text-sm text-[#8a8f9f]">
+            <span>Session:</span>
+            <span className="font-mono font-semibold text-[#00f2fe] break-all px-4">{sessionId}</span>
+            <button 
+              className="btn btn-tiny border-solid border-[#9d4edd] text-[#9d4edd] hover:bg-[#9d4edd]/15"
+              onClick={handleCloneSession}
+              disabled={cloneSessionMutation.isPending}
+            >
+              {cloneSessionMutation.isPending ? 'Cloning...' : '👥 Clone'}
+            </button>
+          </div>
+        )}
+        <p className="text-xs text-[#4e5264] mt-2">🏀 ChronoCourt — Spoiler-Free Sports</p>
+      </footer>
     </div>
   );
 }
