@@ -502,27 +502,16 @@ app.use((err, req, res, next) => {
 
 // Start Server
 if (require.main === module) {
-  const { setupSchema, get } = require('./db');
-  const { seedData } = require('./seed');
+  // Start background sync scheduler
+  try {
+    startScheduler();
+  } catch (err) {
+    console.error('[Server] Failed to start background sync scheduler:', err.message);
+  }
 
-  setupSchema()
-    .then(async () => {
-      const tournamentExists = await get('SELECT id FROM tournaments LIMIT 1');
-      if (!tournamentExists) {
-        console.log('[Server] Database is empty. Seeding initial playoffs data...');
-        await seedData();
-      }
-      // Start background sync scheduler
-      startScheduler();
-    })
-    .catch((err) => {
-      console.error('[Server] Database schema initialization failed:', err.message);
-    })
-    .finally(() => {
-      app.listen(PORT, () => {
-        console.log(`[Server] Running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-      });
-    });
+  app.listen(PORT, () => {
+    console.log(`[Server] Running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  });
 }
 
 module.exports = app;

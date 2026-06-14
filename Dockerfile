@@ -45,6 +45,12 @@ COPY --from=builder /app/dist ./dist
 RUN mkdir -p /data && chown -R node:node /data
 VOLUME [ "/data" ]
 
+# Make the start script executable
+RUN chmod +x server/start.sh
+
+# Build the pre-seeded SQLite database file during build time
+RUN DATABASE_PATH=/app/seed_database.sqlite node server/seed.js
+
 # Configure execution environment
 ENV NODE_ENV=production
 ENV PORT=3000
@@ -53,4 +59,4 @@ ENV DATABASE_PATH=/data/database.sqlite
 EXPOSE 3000
 USER node
 
-CMD ["node", "server/index.js"]
+CMD ["/bin/sh", "server/start.sh"]

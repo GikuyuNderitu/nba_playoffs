@@ -53,7 +53,7 @@ export default function App() {
   const updateTournamentSettingsMutation = useUpdateTournamentSettings(sessionId);
 
   // Helper to update the URL
-  const updateUrl = (newView, newMatchupId, newGameId, replace = false) => {
+  const updateUrl = (newView, newMatchupId, newGameId, replace = false, tournamentIdOverride = undefined) => {
     let stage = null;
     if (newMatchupId && tournamentDetails) {
       const matchup = tournamentDetails.matchups.find(m => m.id === newMatchupId);
@@ -66,7 +66,7 @@ export default function App() {
     const view = newMatchupId ? 'matchup' : newView;
 
     const newFullPath = buildUrl({
-      tournamentId: activeTournId,
+      tournamentId: tournamentIdOverride !== undefined ? tournamentIdOverride : activeTournId,
       matchupId: newMatchupId,
       gameId: newGameId,
       sessionId,
@@ -213,7 +213,7 @@ export default function App() {
     setSelectedMatchupId(null);
     setSelectedGameId(null);
     setActiveTournamentId(null);
-    updateUrl('bracket', null, null, false);
+    updateUrl('bracket', null, null, false, null);
   };
 
   const isLoading = loadingTournaments || !sessionId || (!!activeTournId && (loadingDetails || loadingTimeline));
@@ -313,7 +313,7 @@ export default function App() {
                         setCurrentView('bracket');
                         setSelectedMatchupId(null);
                         setSelectedGameId(null);
-                        updateUrl('bracket', null, null, false);
+                        updateUrl('bracket', null, null, false, null);
                       }}
                     >
                       ← Back

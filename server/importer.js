@@ -130,8 +130,10 @@ async function parseAndImportPlaylist({
   const matchupsMap = new Map();
   for (const g of games) {
     const sortedTeams = [g.teamA, g.teamB].sort();
+    const teamAKey = sortedTeams[0].replace(/\s+/g, '-').toLowerCase();
+    const teamBKey = sortedTeams[1].replace(/\s+/g, '-').toLowerCase();
     const stageKey = g.roundName.replace(/\s+/g, '-').toLowerCase();
-    const matchupId = `${stageKey}-${sortedTeams[0]}-vs-${sortedTeams[1]}`.toLowerCase();
+    const matchupId = `${stageKey}-${teamAKey}-vs-${teamBKey}`;
 
     if (!matchupsMap.has(matchupId)) {
       matchupsMap.set(matchupId, {
@@ -206,35 +208,13 @@ async function parseAndImportPlaylist({
         source_id = excluded.source_id
     `, [tournamentId, title, description, type, sourceId]);
 
-    // Fetch existing matchups and games to calculate deletions later
-    const existingMatchups = await all('SELECT * FROM matchups WHERE tournament_id = ?', [tournamentId]);
-    const existingMatchupIds = existingMatchups.map(m => m.id);
-
-    let existingGames = [];
-    if (existingMatchupIds.length > 0) {
-      const placeholders = existingMatchupIds.map(() => '?').join(',');
-      existingGames = await all(`SELECT * FROM games WHERE matchup_id IN (${placeholders})`, existingMatchupIds);
-    }
-
-    const importedMatchupIds = new Set(parsedMatchups.map(m => m.id));
-    const importedGameIds = new Set();
-    for (const m of parsedMatchups) {
-      for (const g of m.games) {
-        importedGameIds.add(`${m.id}-game-${g.gameNumber}`);
-      }
-    }
-
     // Upsert new matchups and games
     for (const m of parsedMatchups) {
       await run(`
         INSERT INTO matchups (id, tournament_id, title, stage_name, sequence, feeder_a_id, feeder_b_id)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
-          title = excluded.title,
-          stage_name = excluded.stage_name,
-          sequence = excluded.sequence,
-          feeder_a_id = excluded.feeder_a_id,
-          feeder_b_id = excluded.feeder_b_id
+          title = excluded.title
       `, [m.id, tournamentId, m.title, m.stageName, m.sequence, m.feederAId, m.feederBId]);
 
       for (const g of m.games) {
@@ -251,20 +231,6 @@ async function parseAndImportPlaylist({
             duration = excluded.duration
         `, [gameId, m.id, g.gameNumber, g.title, g.teamA, g.teamB, g.date, g.videoId, g.duration]);
       }
-    }
-
-    // Delete orphaned games
-    const gamesToDelete = existingGames.filter(eg => !importedGameIds.has(eg.id));
-    if (gamesToDelete.length > 0) {
-      const deletePlaceholders = gamesToDelete.map(() => '?').join(',');
-      await run(`DELETE FROM games WHERE id IN (${deletePlaceholders})`, gamesToDelete.map(g => g.id));
-    }
-
-    // Delete orphaned matchups
-    const matchupsToDelete = existingMatchups.filter(em => !importedMatchupIds.has(em.id));
-    if (matchupsToDelete.length > 0) {
-      const deletePlaceholders = matchupsToDelete.map(() => '?').join(',');
-      await run(`DELETE FROM matchups WHERE id IN (${deletePlaceholders})`, matchupsToDelete.map(m => m.id));
     }
 
     await run('COMMIT');

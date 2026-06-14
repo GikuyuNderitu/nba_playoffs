@@ -4,8 +4,9 @@
   "description": "Spoiler-Free NBA Playoffs & Tournament Viewer",
   "main": "server/index.js",
   "scripts": {
-    "server:dev": "nodemon server/index.js",
-    "server": "node server/index.js",
+    "db:setup": "node server/setup-db.js",
+    "server:dev": "npm run db:setup && nodemon server/index.js",
+    "server": "npm run db:setup && node server/index.js",
     "client:dev": "vite",
     "client:build": "vite build",
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
