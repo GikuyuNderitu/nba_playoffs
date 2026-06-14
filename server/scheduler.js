@@ -10,12 +10,25 @@ const activeSyncs = new Set();
  */
 async function syncTournament(tournamentId) {
   if (activeSyncs.has(tournamentId)) {
-    console.log(`[Scheduler] Sync already in progress for tournament: ${tournamentId}`);
+    console.log(JSON.stringify({
+      level: 'warn',
+      event: 'sync_skipped',
+      tournament_id: tournamentId,
+      reason: 'Sync already in progress',
+      timestamp: new Date().toISOString()
+    }));
     return;
   }
   
   activeSyncs.add(tournamentId);
-  console.log(`[Scheduler] Starting sync for tournament: ${tournamentId}`);
+  const startTime = Date.now();
+
+  console.log(JSON.stringify({
+    level: 'info',
+    event: 'sync_started',
+    tournament_id: tournamentId,
+    timestamp: new Date().toISOString()
+  }));
 
   try {
     const tourn = await get(`
@@ -26,11 +39,17 @@ async function syncTournament(tournamentId) {
     `, [tournamentId]);
 
     if (!tourn) {
-      console.warn(`[Scheduler] No import source configured for tournament: ${tournamentId}`);
+      console.warn(JSON.stringify({
+        level: 'warn',
+        event: 'sync_skipped',
+        tournament_id: tournamentId,
+        reason: 'No import source configured',
+        timestamp: new Date().toISOString()
+      }));
       return;
     }
 
-    await parseAndImportPlaylist({
+    const result = await parseAndImportPlaylist({
       playlistId: tourn.playlist_id,
       tournamentId: tourn.id,
       title: tourn.title,
@@ -42,9 +61,29 @@ async function syncTournament(tournamentId) {
 
     // Update last sync time
     await run('UPDATE tournaments SET last_sync_at = CURRENT_TIMESTAMP WHERE id = ?', [tournamentId]);
-    console.log(`[Scheduler] Successfully completed sync for tournament: ${tournamentId}`);
+    
+    const durationMs = Date.now() - startTime;
+    console.log(JSON.stringify({
+      level: 'info',
+      event: 'sync_completed',
+      tournament_id: tournamentId,
+      duration_ms: durationMs,
+      matchups_upserted: result.matchupCount,
+      games_upserted: result.gameCount,
+      status: 'success',
+      timestamp: new Date().toISOString()
+    }));
   } catch (err) {
-    console.error(`[Scheduler] Error syncing tournament ${tournamentId}:`, err.message);
+    const durationMs = Date.now() - startTime;
+    console.error(JSON.stringify({
+      level: 'error',
+      event: 'sync_failed',
+      tournament_id: tournamentId,
+      duration_ms: durationMs,
+      error_message: err.message,
+      status: 'failed',
+      timestamp: new Date().toISOString()
+    }));
   } finally {
     activeSyncs.delete(tournamentId);
   }
