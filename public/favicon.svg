@@ -1,1 +1,182 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="46" fill="none" viewBox="0 0 48 46"><path fill="#863bff" d="M25.946 44.938c-.664.845-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.287c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.497 0-3.578-1.842-3.578H1.237c-.92 0-1.456-1.04-.92-1.788L10.013.474c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.579 1.842 3.579h11.377c.943 0 1.473 1.088.89 1.83L25.947 44.94z" style="fill:#863bff;fill:color(display-p3 .5252 .23 1);fill-opacity:1"/><mask id="a" width="48" height="46" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><path fill="#000" d="M25.842 44.938c-.664.844-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.183c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.498 0-3.579-1.842-3.579H1.133c-.92 0-1.456-1.04-.92-1.787L9.91.473c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.578 1.842 3.578h11.377c.943 0 1.473 1.088.89 1.832L25.843 44.94z" style="fill:#000;fill-opacity:1"/></mask><g mask="url(#a)"><g filter="url(#b)"><ellipse cx="5.508" cy="14.704" fill="#ede6ff" rx="5.508" ry="14.704" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -4.47 31.516)"/></g><g filter="url(#c)"><ellipse cx="10.399" cy="29.851" fill="#ede6ff" rx="10.399" ry="29.851" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -39.328 7.883)"/></g><g filter="url(#d)"><ellipse cx="5.508" cy="30.487" fill="#7e14ff" rx="5.508" ry="30.487" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -25.913 -14.639)scale(1 -1)"/></g><g filter="url(#e)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.814 -32.644 -3.334)scale(1 -1)"/></g><g filter="url(#f)"><ellipse cx="5.508" cy="30.599" fill="#7e14ff" rx="5.508" ry="30.599" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="matrix(.00324 1 1 -.00324 -34.34 30.47)"/></g><g filter="url(#g)"><ellipse cx="14.072" cy="22.078" fill="#ede6ff" rx="14.072" ry="22.078" style="fill:#ede6ff;fill:color(display-p3 .9275 .9033 1);fill-opacity:1" transform="rotate(93.35 24.506 48.493)scale(-1 1)"/></g><g filter="url(#h)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#i)"><ellipse cx="3.47" cy="21.501" fill="#7e14ff" rx="3.47" ry="21.501" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(89.009 28.708 47.59)scale(-1 1)"/></g><g filter="url(#j)"><ellipse cx=".387" cy="8.972" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(39.51 .387 8.972)"/></g><g filter="url(#k)"><ellipse cx="47.523" cy="-6.092" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 47.523 -6.092)"/></g><g filter="url(#l)"><ellipse cx="41.412" cy="6.333" fill="#47bfff" rx="5.971" ry="9.665" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 41.412 6.333)"/></g><g filter="url(#m)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#n)"><ellipse cx="-1.879" cy="38.332" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 -1.88 38.332)"/></g><g filter="url(#o)"><ellipse cx="35.651" cy="29.907" fill="#7e14ff" rx="4.407" ry="29.108" style="fill:#7e14ff;fill:color(display-p3 .4922 .0767 1);fill-opacity:1" transform="rotate(37.892 35.651 29.907)"/></g><g filter="url(#p)"><ellipse cx="38.418" cy="32.4" fill="#47bfff" rx="5.971" ry="15.297" style="fill:#47bfff;fill:color(display-p3 .2799 .748 1);fill-opacity:1" transform="rotate(37.892 38.418 32.4)"/></g></g><defs><filter id="b" width="60.045" height="41.654" x="-19.77" y="16.149" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="c" width="90.34" height="51.437" x="-54.613" y="-7.533" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="d" width="79.355" height="29.4" x="-49.64" y="2.03" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="e" width="79.579" height="29.4" x="-45.045" y="20.029" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="f" width="79.579" height="29.4" x="-43.513" y="21.178" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="g" width="74.749" height="58.852" x="15.756" y="-17.901" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="7.659"/></filter><filter id="h" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="i" width="61.377" height="25.362" x="23.548" y="2.284" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="j" width="56.045" height="63.649" x="-27.636" y="-22.853" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="k" width="54.814" height="64.646" x="20.116" y="-38.415" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="l" width="33.541" height="35.313" x="24.641" y="-11.323" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="m" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="n" width="54.814" height="64.646" x="-29.286" y="6.009" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="o" width="54.814" height="64.646" x="8.244" y="-2.416" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter><filter id="p" width="39.409" height="43.623" x="18.713" y="10.588" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur result="effect1_foregroundBlur_2002_17158" stdDeviation="4.596"/></filter></defs></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" width="100%" height="100%">
+  <defs>
+    <!-- Drop Shadow Filter for Depth -->
+    <filter id="premium-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.35" />
+    </filter>
+
+    <!-- Basketball Gradient (Vibrant Orange to Red-Orange) -->
+    <radialGradient id="basketball-grad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ff9f43" />
+      <stop offset="70%" stop-color="#ee5253" />
+      <stop offset="100%" stop-color="#c8d6e5" stop-opacity="0.1" /> <!-- Spherical shadow overlay -->
+    </radialGradient>
+
+    <!-- Baseball Gradient (Crisp White to Slate Gray) -->
+    <radialGradient id="baseball-grad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="75%" stop-color="#f1f5f9" />
+      <stop offset="100%" stop-color="#cbd5e1" />
+    </radialGradient>
+
+    <!-- Soccer Ball Gradient (White Panels Soft Shadow) -->
+    <radialGradient id="soccer-grad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="80%" stop-color="#f8fafc" />
+      <stop offset="100%" stop-color="#cbd5e1" />
+    </radialGradient>
+
+    <!-- Volleyball Gradient (Vibrant White to Light Grey-Blue) -->
+    <radialGradient id="volleyball-grad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="70%" stop-color="#f8fafc" />
+      <stop offset="100%" stop-color="#cbd5e1" />
+    </radialGradient>
+
+    <!-- American Football Gradient (Textured Brown to Dark Chocolate) -->
+    <radialGradient id="football-grad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#b86b35" />
+      <stop offset="75%" stop-color="#8c471c" />
+      <stop offset="100%" stop-color="#54250a" />
+    </radialGradient>
+
+    <!-- Ball Clipping Path to ensure perfectly round boundaries -->
+    <clipPath id="ball-clip">
+      <circle cx="50" cy="50" r="44" />
+    </clipPath>
+
+  </defs>
+
+  <style>
+    .ball-group {
+      transform-origin: 50px 50px;
+      opacity: 0;
+    }
+    
+    #basketball-group { animation: cycle-basketball 15s infinite ease-in-out; }
+    #baseball-group   { animation: cycle-baseball 15s infinite ease-in-out; }
+    #soccer-group     { animation: cycle-soccer 15s infinite ease-in-out; }
+    #volleyball-group { animation: cycle-volleyball 15s infinite ease-in-out; }
+    #football-group   { animation: cycle-football 15s infinite ease-in-out; }
+
+    @keyframes cycle-basketball {
+      0%, 16.67% { opacity: 1; transform: scale(1) rotate(0deg); }
+      20%, 96.67% { opacity: 0; transform: scale(0.7) rotate(60deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    @keyframes cycle-baseball {
+      0%, 16.67% { opacity: 0; transform: scale(0.7) rotate(-60deg); }
+      20%, 36.67% { opacity: 1; transform: scale(1) rotate(0deg); }
+      40%, 100% { opacity: 0; transform: scale(0.7) rotate(60deg); }
+    }
+    @keyframes cycle-soccer {
+      0%, 36.67% { opacity: 0; transform: scale(0.7) rotate(-60deg); }
+      40%, 56.67% { opacity: 1; transform: scale(1) rotate(0deg); }
+      60%, 100% { opacity: 0; transform: scale(0.7) rotate(60deg); }
+    }
+    @keyframes cycle-volleyball {
+      0%, 56.67% { opacity: 0; transform: scale(0.7) rotate(-60deg); }
+      60%, 76.67% { opacity: 1; transform: scale(1) rotate(0deg); }
+      80%, 100% { opacity: 0; transform: scale(0.7) rotate(60deg); }
+    }
+    @keyframes cycle-football {
+      0%, 76.67% { opacity: 0; transform: scale(0.7) rotate(-60deg); }
+      80%, 96.67% { opacity: 1; transform: scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: scale(0.7) rotate(60deg); }
+    }
+  </style>
+
+  <!-- 1. Basketball -->
+  <g id="basketball-group" class="ball-group" filter="url(#premium-shadow)">
+    <!-- Base Spherical Surface -->
+    <circle cx="50" cy="50" r="44" fill="url(#basketball-grad)" stroke="#1a1c23" stroke-width="2.5" />
+    
+    <!-- Basketball Seams -->
+    <line x1="6" y1="50" x2="94" y2="50" stroke="#1a1c23" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="50" y1="6" x2="50" y2="94" stroke="#1a1c23" stroke-width="2.5" stroke-linecap="round" />
+    
+    <!-- Curved Ribbons -->
+    <path d="M18.9 18.9 C34 31 34 69 18.9 81.1" fill="none" stroke="#1a1c23" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M81.1 18.9 C66 31 66 69 81.1 81.1" fill="none" stroke="#1a1c23" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+
+  <!-- 2. Baseball -->
+  <g id="baseball-group" class="ball-group" filter="url(#premium-shadow)">
+    <circle cx="50" cy="50" r="44" fill="url(#baseball-grad)" stroke="#1a1c23" stroke-width="2.5" />
+    
+    <!-- Red Stitching Curved Seams -->
+    <!-- Seam 1 backing and stitches -->
+    <path d="M22 15 C38 30 38 70 22 85" fill="none" stroke="#fee2e2" stroke-width="2" />
+    <path d="M22 15 C38 30 38 70 22 85" fill="none" stroke="#ee5253" stroke-width="2.5" stroke-dasharray="2 3" stroke-linecap="round" />
+
+    <!-- Seam 2 backing and stitches -->
+    <path d="M78 15 C62 30 62 70 78 85" fill="none" stroke="#fee2e2" stroke-width="2" />
+    <path d="M78 15 C62 30 62 70 78 85" fill="none" stroke="#ee5253" stroke-width="2.5" stroke-dasharray="2 3" stroke-linecap="round" />
+  </g>
+
+  <!-- 3. Soccer Ball -->
+  <g id="soccer-group" class="ball-group" filter="url(#premium-shadow)" clip-path="url(#ball-clip)">
+    <!-- Base white sphere -->
+    <circle cx="50" cy="50" r="44" fill="url(#soccer-grad)" stroke="#1a1c23" stroke-width="2.5" />
+    
+    <!-- Center Pentagon -->
+    <polygon points="50,38 61.4,46.3 57.1,59.7 42.9,59.7 38.6,46.3" fill="#1a1c23" stroke="#1a1c23" stroke-width="2" stroke-linejoin="round" />
+    
+    <!-- Radiating Seam Lines -->
+    <line x1="50" y1="38" x2="50" y2="20" stroke="#1a1c23" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="61.4" y1="46.3" x2="76.6" y2="41.4" stroke="#1a1c23" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="57.1" y1="59.7" x2="66.5" y2="74.3" stroke="#1a1c23" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="42.9" y1="59.7" x2="33.5" y2="74.3" stroke="#1a1c23" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="38.6" y1="46.3" x2="23.4" y2="41.4" stroke="#1a1c23" stroke-width="2.5" stroke-linecap="round" />
+    
+    <!-- Outer Pentagon Panels (Clipped automatically) -->
+    <polygon points="50,20 63,11 37,11" fill="#1a1c23" stroke="#1a1c23" stroke-width="2" stroke-linejoin="round" />
+    <polygon points="76.6,41.4 89,32 85,50" fill="#1a1c23" stroke="#1a1c23" stroke-width="2" stroke-linejoin="round" />
+    <polygon points="66.5,74.3 80,74 72,87" fill="#1a1c23" stroke="#1a1c23" stroke-width="2" stroke-linejoin="round" />
+    <polygon points="33.5,74.3 20,74 28,87" fill="#1a1c23" stroke="#1a1c23" stroke-width="2" stroke-linejoin="round" />
+    <polygon points="23.4,41.4 11,32 15,50" fill="#1a1c23" stroke="#1a1c23" stroke-width="2" stroke-linejoin="round" />
+  </g>
+
+  <!-- 4. Volleyball -->
+  <g id="volleyball-group" class="ball-group" filter="url(#premium-shadow)" clip-path="url(#ball-clip)">
+    <!-- Base Spherical Surface -->
+    <circle cx="50" cy="50" r="44" fill="url(#volleyball-grad)" stroke="#1a1c23" stroke-width="2.5" />
+    
+    <!-- Main Ribbons -->
+    <path d="M 18.9 18.9 C 30 40, 35 60, 50 94" stroke="#1a1c23" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <path d="M 18.9 18.9 C 45 25, 70 30, 94 50" stroke="#1a1c23" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <path d="M 50 94 C 60 70, 80 60, 94 50" stroke="#1a1c23" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    
+    <!-- Ribbon 1 Inner lines -->
+    <path d="M 10 32 C 20 50, 25 70, 32 88" stroke="#1a1c23" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <path d="M 6 50 C 14 62, 18 80, 20 82" stroke="#1a1c23" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    
+    <!-- Ribbon 2 Inner lines -->
+    <path d="M 32 10 C 50 20, 70 25, 88 32" stroke="#1a1c23" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <path d="M 50 6 C 62 14, 80 18, 82 20" stroke="#1a1c23" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    
+    <!-- Ribbon 3 Inner lines -->
+    <path d="M 68 82 C 70 70, 80 50, 90 32" stroke="#1a1c23" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <path d="M 82 68 C 80 62, 85 50, 93 44" stroke="#1a1c23" stroke-width="2.5" fill="none" stroke-linecap="round" />
+  </g>
+
+  <!-- 5. American Football -->
+  <g id="football-group" class="ball-group" filter="url(#premium-shadow)">
+    <!-- Oblong spheriod tilted at 45 degrees -->
+    <path d="M 17 81 C 19 36, 36 19, 83 19 C 83 17.5, 82.5 17, 81 17 C 81 64, 64 81, 19 83 C 17 82.5, 18 83.5, 17 81 Z" fill="url(#football-grad)" stroke="#1a1c23" stroke-width="2.5" />
+    
+    <!-- White Stripes at ends -->
+    <path d="M 23 57 C 27 65, 35 73, 43 77" fill="none" stroke="#f1f5f9" stroke-width="3.5" stroke-linecap="round" />
+    <path d="M 57 23 C 65 27, 73 35, 77 43" fill="none" stroke="#f1f5f9" stroke-width="3.5" stroke-linecap="round" />
+    
+    <!-- Central Laces Backbone -->
+    <line x1="33" y1="67" x2="67" y2="33" stroke="#f1f5f9" stroke-width="3.5" stroke-linecap="round" />
+    
+    <!-- Cross stitches -->
+    <line x1="37" y1="57" x2="43" y2="63" stroke="#f1f5f9" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="42" y1="52" x2="48" y2="58" stroke="#f1f5f9" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="47" y1="47" x2="53" y2="53" stroke="#f1f5f9" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="52" y1="42" x2="58" y2="48" stroke="#f1f5f9" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="57" y1="37" x2="63" y2="43" stroke="#f1f5f9" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+</svg>

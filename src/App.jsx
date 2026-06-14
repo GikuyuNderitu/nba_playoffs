@@ -219,7 +219,8 @@ export default function App() {
             onClick={handleBrandClick} 
             className="cursor-pointer text-xl md:text-2xl font-extrabold flex items-center gap-2 bg-gradient-to-br from-[#f5f6fa] via-[#f5f6fa] to-[#00f2fe] bg-clip-text text-transparent"
           >
-            🏀 ChronoCourt
+            <img src="/favicon.svg" alt="ChronoCourt Logo" className="w-7 h-7 md:w-8 md:h-8 object-contain shrink-0" />
+            <span>ChronoCourt</span>
           </h1>
         </div>
         <div className="hidden md:flex items-center gap-4">
@@ -314,7 +315,10 @@ export default function App() {
             </button>
           </div>
         )}
-        <p className="text-xs text-[#4e5264] mt-2">🏀 ChronoCourt — Spoiler-Free Sports</p>
+        <p className="text-xs text-[#4e5264] mt-2 flex items-center justify-center gap-1.5">
+          <img src="/favicon.svg" alt="ChronoCourt Logo" className="w-4 h-4 object-contain opacity-60" />
+          <span>ChronoCourt — Spoiler-Free Sports</span>
+        </p>
       </footer>
     </div>
   );
